@@ -2,25 +2,48 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Calculator</title>
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
-        body { font-family: -apple-system, sans-serif; background: #000; color: #fff; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        .calc-box { width: 320px; background: #000; padding: 20px; border-radius: 20px; }
-        .display { font-size: 3rem; text-align: right; padding: 20px 10px; color: white; min-height: 60px; word-wrap: break-word; }
+        /* ป้องกัน Safari ซูมเวลาเผลอกดรัวๆ */
+        * { touch-action: manipulation; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #000; color: #fff; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow: hidden; }
+        
+        /* หน้าเครื่องคิดเลขพรางตา */
+        .calc-box { width: 100%; max-width: 350px; background: #000; padding: 20px; border-radius: 30px; }
+        .display { font-size: 3.5rem; text-align: right; padding: 20px 10px; color: white; min-height: 90px; word-wrap: break-word; font-weight: 300; }
         .buttons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-        button { font-size: 1.5rem; border: none; border-radius: 50%; height: 65px; width: 65px; background: #333; color: white; cursor: pointer; }
-        button.orange { background: #fe9e09; }
+        button.btn { font-size: 1.6rem; border: none; border-radius: 50%; height: 70px; width: 70px; background: #333; color: white; cursor: pointer; display: flex; justify-content: center; align-items: center; user-select: none; }
+        button.btn:active { opacity: 0.7; }
+        button.orange { background: #ff9f0a; }
         button.gray { background: #a5a5a5; color: black; }
-        .chat-box { display: none; width: 100%; max-width: 400px; height: 90vh; background: #1c1c1e; border-radius: 15px; flex-direction: column; }
-        .chat-messages { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        .msg { padding: 10px 15px; border-radius: 18px; max-width: 70%; word-break: break-word; }
-        .msg.me { background: #0b84fe; align-self: flex-end; }
-        .msg.them { background: #3a3a3c; align-self: flex-start; }
-        .chat-input { display: flex; padding: 10px; gap: 10px; background: #2c2c2e; border-bottom-left-radius: 15px; border-bottom-right-radius: 15px; }
-        input[type="text"] { flex: 1; padding: 12px; border-radius: 20px; border: none; background: #1c1c1e; color: white; outline: none; }
-        .send-btn { background: #0b84fe; color: white; border-radius: 20px; width: auto; padding: 0 15px; height: 40px; }
+        
+        /* หน้าแชตลับโทนละมุน (Romantic Theme) */
+        .chat-box { display: none; width: 100vw; height: 100vh; max-width: 450px; background: #fff0f5; flex-direction: column; position: relative; }
+        .chat-header { padding: 15px 20px; background: #ffb6c1; color: #4a4a4a; font-weight: bold; text-align: center; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; }
+        .chat-header .title { font-size: 1.1rem; color: #8b4513; }
+        .status-dot { width: 10px; height: 10px; background: #ccc; border-radius: 50%; display: inline-block; }
+        .status-dot.online { background: #2ecc71; }
+        
+        .chat-messages { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; background: #fff5f7; }
+        .msg { padding: 12px 16px; border-radius: 20px; max-width: 75%; word-break: break-word; font-size: 0.95rem; line-height: 1.4; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .msg.me { background: #ff6b81; color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+        .msg.them { background: #ffffff; color: #4a4a4a; align-self: flex-start; border-bottom-left-radius: 4px; border: 1px solid #ffe4e1; }
+        
+        .chat-input-area { padding: 12px; background: #ffffff; border-top: 1px solid #ffe4e1; display: flex; flex-direction: column; gap: 8px; }
+        .quick-hearts { display: flex; gap: 10px; justify-content: center; font-size: 1.3rem; }
+        .quick-hearts span { cursor: pointer; transition: transform 0.1s; }
+        .quick-hearts span:active { transform: scale(1.3); }
+        
+        .input-row { display: flex; gap: 8px; align-items: center; }
+        input[type="text"] { flex: 1; padding: 12px 18px; border-radius: 25px; border: 1px solid #ffccd5; background: #fff0f5; color: #333; outline: none; font-size: 1rem; }
+        .send-btn { background: #ff6b81; color: white; border: none; border-radius: 50%; width: 45px; height: 45px; font-size: 1.2rem; cursor: pointer; display: flex; justify-content: center; align-items: center; }
+        
+        /* Modal หน้าเชื่อมต่อ P2P */
+        .p2p-setup { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,240,245,0.95); display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; gap: 15px; color: #4a4a4a; text-align: center; }
+        .p2p-setup input { padding: 10px; border-radius: 10px; border: 1px solid #ffb6c1; text-align: center; font-size: 1.1rem; width: 200px; }
+        .p2p-setup button { background: #ff6b81; color: white; border: none; padding: 10px 20px; border-radius: 15px; font-size: 1rem; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -29,44 +52,66 @@
     <div id="calcView" class="calc-box">
         <div id="display" class="display">0</div>
         <div class="buttons">
-            <button class="gray" onclick="press('C')">C</button>
-            <button class="gray" onclick="press('+/-')">+/-</button>
-            <button class="gray" onclick="press('%')">%</button>
-            <button class="orange" onclick="press('/')">÷</button>
-            <button onclick="press('7')">7</button>
-            <button onclick="press('8')">8</button>
-            <button onclick="press('9')">9</button>
-            <button class="orange" onclick="press('*')">×</button>
-            <button onclick="press('4')">4</button>
-            <button onclick="press('5')">5</button>
-            <button onclick="press('6')">6</button>
-            <button class="orange" onclick="press('-')">-</button>
-            <button onclick="press('1')">1</button>
-            <button onclick="press('2')">2</button>
-            <button onclick="press('3')">3</button>
-            <button class="orange" onclick="press('+')">+</button>
-            <button onclick="press('0')" style="grid-column: span 2; width: 140px; border-radius: 30px; text-align: left; padding-left: 25px;">0</button>
-            <button onclick="press('.')">.</button>
-            <button class="orange" onclick="checkSecret()">=</button>
+            <button class="btn gray" onclick="press('C')">C</button>
+            <button class="btn gray" onclick="press('+/-')">+/-</button>
+            <button class="btn gray" onclick="press('%')">%</button>
+            <button class="btn orange" onclick="press('/')">÷</button>
+            <button class="btn" onclick="press('7')">7</button>
+            <button class="btn" onclick="press('8')">8</button>
+            <button class="btn" onclick="press('9')">9</button>
+            <button class="btn orange" onclick="press('*')">×</button>
+            <button class="btn" onclick="press('4')">4</button>
+            <button class="btn" onclick="press('5')">5</button>
+            <button class="btn" onclick="press('6')">6</button>
+            <button class="btn orange" onclick="press('-')">-</button>
+            <button class="btn" onclick="press('1')">1</button>
+            <button class="btn" onclick="press('2')">2</button>
+            <button class="btn" onclick="press('3')">3</button>
+            <button class="btn orange" onclick="press('+')">+</button>
+            <button class="btn" onclick="press('0')" style="grid-column: span 2; width: 152px; border-radius: 35px; justify-content: flex-start; padding-left: 28px;">0</button>
+            <button class="btn" onclick="press('.')">.</button>
+            <button class="btn orange" onclick="checkSecret()">=</button>
         </div>
     </div>
 
-    <!-- หน้าแชตลับ P2P -->
+    <!-- หน้าแชตคู่รัก -->
     <div id="chatView" class="chat-box">
-        <div style="padding: 15px; background: #2c2c2e; border-top-left-radius: 15px; border-top-right-radius: 15px; text-align: center;">
-            <small id="status">กำลังเชื่อมต่อ...</small>
+        <div class="chat-header">
+            <span class="title">💖 Our Secret Space</span>
+            <span><span id="dot" class="status-dot"></span> <small id="statusText" style="font-size: 0.8rem;">offline</small></span>
         </div>
+        
+        <!-- ตัวตั้งค่าห้องคุย P2P สำหรับคู่เรา -->
+        <div id="p2pSetup" class="p2p-setup">
+            <h3>🔒 ตั้งค่าห้องคู่รัก</h3>
+            <p style="font-size: 0.9rem; color: #777;">ใส่ชื่อรหัสคู่เราให้ตรงกันทั้งสองเครื่อง<br>(เช่น `love2026`)</p>
+            <input type="text" id="roomInput" placeholder="ใส่ชื่อรหัสคู่เรา">
+            <button onclick="startP2P()">เริ่มการเชื่อมต่อ 💌</button>
+        </div>
+
         <div id="messages" class="chat-messages"></div>
-        <div class="chat-input">
-            <input type="text" id="msgInput" placeholder="พิมพ์ข้อความ..." onkeypress="if(event.key==='Enter') sendMsg()">
-            <button class="send-btn" onclick="sendMsg()">ส่ง</button>
+        
+        <div class="chat-input-area">
+            <!-- ปุ่มทางด่วนส่งความรัก -->
+            <div class="quick-hearts">
+                <span onclick="sendQuick('❤️')">❤️</span>
+                <span onclick="sendQuick('รักเธอนะคะ 💕')">💕</span>
+                <span onclick="sendQuick('คิดถึงจัง 🥺')">🥺</span>
+                <span onclick="sendQuick('กอดๆ 🫂')">🫂</span>
+                <span onclick="sendQuick('😘')">😘</span>
+            </div>
+            <div class="input-row">
+                <input type="text" id="msgInput" placeholder="พิมพ์ข้อความหวานๆ..." onkeypress="if(event.key==='Enter') sendMsg()">
+                <button class="send-btn" onclick="sendMsg()">➔</button>
+            </div>
         </div>
     </div>
 
     <script>
         let inputStr = "";
-        let peer, conn;
-        // รหัสลับเข้าแชต เปลี่ยนตรงนี้ได้เลย (เช่น 1234)
+        let peer = null, conn = null;
+        
+        // รหัสลับเข้าเครื่องคิดเลข
         const SECRET_CODE = "1234"; 
 
         function press(val) {
@@ -79,7 +124,7 @@
             if(inputStr === SECRET_CODE) {
                 document.getElementById('calcView').style.display = 'none';
                 document.getElementById('chatView').style.display = 'flex';
-                initP2P();
+                inputStr = "";
             } else {
                 try {
                     inputStr = eval(inputStr).toString();
@@ -91,42 +136,77 @@
             }
         }
 
-        function initP2P() {
-            // ระบบสร้างห้องเชื่อมต่อ P2P ข้ามระยะไกล
-            peer = new Peer('secret-room-love-1234'); // ตั้งชื่อห้องให้ตรงกันทั้งสองฝั่ง
+        function startP2P() {
+            const roomName = document.getElementById('roomInput').value.trim();
+            if(!roomName) return alert('กรุณาใส่ชื่อรหัสคู่รักก่อนครับ');
+
+            document.getElementById('p2pSetup').style.display = 'none';
+            document.getElementById('statusText').innerText = "กำลังค้นหา...";
+
+            // สร้าง Peer ID เฉพาะตัว
+            const myId = roomName + '-' + Math.floor(Math.random() * 1000);
+            peer = new Peer(myId);
 
             peer.on('open', (id) => {
-                document.getElementById('status').innerText = "รอการเชื่อมต่อจากแฟน...";
+                // พยายามทักหาแฟน
+                connectToPartner(roomName);
             });
 
             peer.on('connection', (c) => {
                 conn = c;
-                setupChat();
-            });
-
-            peer.on('error', (err) => {
-                // ถ้าห้องมีอยู่แล้ว ให้ลองเชื่อมต่อเข้าไปในฐานะผู้จอย
-                conn = peer.connect('secret-room-love-1234');
-                setupChat();
+                bindEvents();
             });
         }
 
-        function setupChat() {
+        function connectToPartner(roomName) {
+            // ระบบสแกนหาแฟนอัตโนมัติ
+            setInterval(() => {
+                if(!conn || !conn.open) {
+                    // ดึงรายการเพื่อนในระบบเพื่อหาคนที่ใช้รหัสคู่เดียวกัน
+                    peer.listAllPeers((peers) => {
+                        const partnerId = peers.find(p => p.startsWith(roomName) && p !== peer.id);
+                        if(partnerId && (!conn || !conn.open)) {
+                            conn = peer.connect(partnerId);
+                            bindEvents();
+                        }
+                    });
+                }
+            }, 3000);
+        }
+
+        function bindEvents() {
             conn.on('open', () => {
-                document.getElementById('status').innerText = "เชื่อมต่อปลอดภัยแล้ว (P2P)";
+                document.getElementById('statusText').innerText = "ออนไลน์แล้ว 💖";
+                document.getElementById('dot').className = "status-dot online";
             });
 
             conn.on('data', (data) => {
                 addMessage(data, 'them');
             });
+
+            conn.on('close', () => {
+                document.getElementById('statusText').innerText = "offline";
+                document.getElementById('dot').className = "status-dot";
+            });
         }
 
         function sendMsg() {
             const input = document.getElementById('msgInput');
-            if(input.value && conn) {
+            if(input.value && conn && conn.open) {
                 conn.send(input.value);
                 addMessage(input.value, 'me');
                 input.value = '';
+            } else if(!conn || !conn.open) {
+                alert('รอแฟนเชื่อมต่อสักครู่นะครับ 💕');
+            }
+        }
+
+        function sendQuick(text) {
+            if(conn && conn.open) {
+                conn.send(text);
+                addMessage(text, 'me');
+            } else {
+                alert('รอแฟนเชื่อมต่อสักครู่นะครับ 💕');
             }
         }
 
