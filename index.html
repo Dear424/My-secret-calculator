@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>💕 ของเรา - Couple Chat Pro</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -873,14 +874,31 @@
         let audioChunks = [];
         let videoStream = null;
 
+        // P2P WebRTC Connection Global Variables
+        let peer = null;
+        let activePeerConn = null;
+        let myPeerId = null;
+
         const syncChannel = new BroadcastChannel('couple_chat_channel');
 
+        // ปรับปรุง BroadcastChannel ดักฟังการซิงค์ผ่านแท็บอัจฉริยะ (Smart Merging)
         syncChannel.onmessage = (event) => {
-            if (event.data && event.data.type === 'SYNC_ALL') {
-                messages = event.data.messages || [];
-                renderMessages();
+            if (event.data && (event.data.type === 'SYNC_ALL' || event.data.type === 'NEW_MESSAGE')) {
+                if (event.data.messages) {
+                    mergeMessages(event.data.messages);
+                } else if (event.data.message) {
+                    mergeMessages([event.data.message]);
+                }
             }
         };
+
+        // ดักฟังการเปลี่ยนรูป/ข้อมูลข้ามแท็บ
+        window.addEventListener('storage', (e) => {
+            if (e.key === DB_KEY + 'messages') {
+                const updated = getData('messages', []);
+                mergeMessages(updated);
+            }
+        });
 
         function saveData(key, value) {
             localStorage.setItem(DB_KEY + key, JSON.stringify(value));
@@ -891,9 +909,161 @@
             return data ? JSON.parse(data) : defaultValue;
         }
 
-        function saveAndBroadcast() {
+        // ----------------------------------------------------
+        // 🛠️ SMART MERGE ENGINE (ป้องกันข้อมูลทับ & ข้อความหาย)
+        // ----------------------------------------------------
+        function mergeMessages(newMsgs) {
+            if (!Array.isArray(newMsgs) || newMsgs.length === 0) return false;
+            
+            const msgMap = new Map();
+            messages.forEach(m => msgMap.set(String(m.id), m));
+
+            let addedCount = 0;
+            newMsgs.forEach(m => {
+                if (m && m.id && !msgMap.has(String(m.id))) {
+                    msgMap.set(String(m.id), m);
+                    addedCount++;
+                }
+            });
+
+            if (addedCount > 0) {
+                messages = Array.from(msgMap.values()).sort((a, b) => a.id - b.id);
+                saveData('messages', messages);
+                renderMessages();
+                return true;
+            }
+            return false;
+        }
+
+        function mergeLetters(newLetters) {
+            if (!Array.isArray(newLetters) || newLetters.length === 0) return false;
+            
+            const currentLetters = getData('letters', []);
+            const letterMap = new Map();
+            currentLetters.forEach(l => letterMap.set(String(l.id), l));
+
+            let addedCount = 0;
+            newLetters.forEach(l => {
+                if (l && l.id && !letterMap.has(String(l.id))) {
+                    letterMap.set(String(l.id), l);
+                    addedCount++;
+                }
+            });
+
+            if (addedCount > 0) {
+                const merged = Array.from(letterMap.values()).sort((a, b) => a.id - b.id);
+                saveData('letters', merged);
+                renderLetters();
+                return true;
+            }
+            return false;
+        }
+
+        function saveAndBroadcast(singleMsg = null) {
             saveData('messages', messages);
-            syncChannel.postMessage({ type: 'SYNC_ALL', messages: messages });
+            
+            // 1. กระจายข้อมูลหา Tab อื่นในเครื่องเดียวกัน
+            if (singleMsg) {
+                syncChannel.postMessage({ type: 'NEW_MESSAGE', message: singleMsg });
+            } else {
+                syncChannel.postMessage({ type: 'SYNC_ALL', messages: messages });
+            }
+
+            // 2. กระจายข้อมูลข้ามเครื่องสดผ่าน P2P WebRTC (ถ้ามีการเชื่อมต่ออยู่)
+            if (activePeerConn && activePeerConn.open) {
+                if (singleMsg) {
+                    activePeerConn.send({ type: 'NEW_MESSAGE', message: singleMsg });
+                } else {
+                    activePeerConn.send({ type: 'SYNC_FULL', payload: getSyncPayload() });
+                }
+            }
+        }
+
+        // ----------------------------------------------------
+        // 🌐 P2P WEBRTC REALTIME SYNC (ซิงค์ตรงข้ามเครื่องสดๆ)
+        // ----------------------------------------------------
+        function initPeerSync() {
+            if (typeof Peer === 'undefined') return;
+
+            myPeerId = localStorage.getItem(DB_KEY + 'myPeerId');
+            if (!myPeerId) {
+                myPeerId = 'couple_' + Math.random().toString(36).substring(2, 9);
+                localStorage.setItem(DB_KEY + 'myPeerId', myPeerId);
+            }
+
+            if (peer) return;
+
+            try {
+                peer = new Peer(myPeerId);
+
+                peer.on('open', (id) => {
+                    const partnerPeerId = localStorage.getItem(DB_KEY + 'partnerPeerId');
+                    if (partnerPeerId) {
+                        connectToPartnerPeer(partnerPeerId);
+                    }
+                });
+
+                peer.on('connection', (conn) => {
+                    setupPeerConnection(conn);
+                });
+
+                peer.on('error', (err) => {
+                    console.warn('P2P connection state:', err);
+                });
+            } catch(e) {
+                console.error('Peer init error:', e);
+            }
+        }
+
+        function connectToPartnerPeer(partnerId) {
+            if (!peer || peer.destroyed) return;
+            if (activePeerConn && activePeerConn.open && activePeerConn.peer === partnerId) return;
+
+            const conn = peer.connect(partnerId, { reliable: true });
+            setupPeerConnection(conn);
+        }
+
+        function setupPeerConnection(conn) {
+            activePeerConn = conn;
+            localStorage.setItem(DB_KEY + 'partnerPeerId', conn.peer);
+
+            conn.on('open', () => {
+                updateOnlineStatus(true);
+                conn.send({ type: 'SYNC_FULL', payload: getSyncPayload() });
+            });
+
+            conn.on('data', (data) => {
+                if (!data) return;
+
+                if (data.type === 'SYNC_FULL' || data.type === 'SYNC_ALL') {
+                    if (data.payload) {
+                        mergeMessages(data.payload.messages);
+                        mergeLetters(data.payload.letters);
+                        if (data.payload.myName) {
+                            localStorage.setItem(DB_KEY + 'partnerName', data.payload.myName);
+                            updateProfileUI();
+                        }
+                    }
+                } else if (data.type === 'NEW_MESSAGE') {
+                    if (data.message) {
+                        const isNew = mergeMessages([data.message]);
+                        if (isNew) playSound();
+                    }
+                }
+            });
+
+            conn.on('close', () => {
+                updateOnlineStatus(false);
+                activePeerConn = null;
+            });
+        }
+
+        function updateOnlineStatus(isP2PConnected) {
+            const el = document.getElementById('onlineStatusText');
+            if (el) {
+                el.textContent = isP2PConnected ? 'Online (เชื่อมต่อคู่แล้ว)' : 'Online';
+                el.style.color = isP2PConnected ? '#34C759' : '#8E8E93';
+            }
         }
 
         function init() {
@@ -904,6 +1074,7 @@
                 showChat();
                 updateProfileUI();
                 renderMessages();
+                initPeerSync();
             } else {
                 showLogin();
             }
@@ -919,6 +1090,7 @@
             showChat();
             updateProfileUI();
             renderMessages();
+            initPeerSync();
         }
 
         function showLogin() {
@@ -969,7 +1141,7 @@
             };
 
             messages.push(msg);
-            saveAndBroadcast();
+            saveAndBroadcast(msg);
             input.value = '';
             input.style.height = 'auto';
             renderMessages();
@@ -1018,14 +1190,15 @@
                 const myName = localStorage.getItem(DB_KEY + 'myName') || 'เรา';
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    messages.push({
+                    const msg = {
                         id: Date.now(),
                         image: e.target.result,
                         sender: 'you',
                         senderName: myName,
                         time: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
-                    });
-                    saveAndBroadcast();
+                    };
+                    messages.push(msg);
+                    saveAndBroadcast(msg);
                     renderMessages();
                     playSound();
                 };
@@ -1074,14 +1247,15 @@
                 const reader = new FileReader();
                 reader.onloadend = () => {
                     const myName = localStorage.getItem(DB_KEY + 'myName') || 'เรา';
-                    messages.push({
+                    const msg = {
                         id: Date.now(),
                         audio: reader.result,
                         sender: 'you',
                         senderName: myName,
                         time: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
-                    });
-                    saveAndBroadcast();
+                    };
+                    messages.push(msg);
+                    saveAndBroadcast(msg);
                     renderMessages();
                     playSound();
                 };
@@ -1195,16 +1369,21 @@
             }
 
             let letters = getData('letters', []);
-            letters.push({
+            const newLetter = {
                 id: Date.now(),
                 text: text,
                 author: localStorage.getItem(DB_KEY + 'myName') || 'เรา',
                 date: new Date().toLocaleDateString('th-TH', { day:'numeric', month:'short', year:'numeric' })
-            });
+            };
+            letters.push(newLetter);
             saveData('letters', letters);
             document.getElementById('letterText').value = '';
             renderLetters();
             alert('📬 บันทึกจดหมายเรียบร้อยแล้ว');
+            
+            if (activePeerConn && activePeerConn.open) {
+                activePeerConn.send({ type: 'SYNC_FULL', payload: getSyncPayload() });
+            }
         }
 
         function renderLetters() {
@@ -1242,14 +1421,15 @@
 
         function sendGift(emoji, name) {
             const myName = localStorage.getItem(DB_KEY + 'myName') || 'เรา';
-            messages.push({
+            const msg = {
                 id: Date.now(),
                 text: `🎁 มอบขวัญสุดพิเศษ: ${name} ${emoji}`,
                 sender: 'you',
                 senderName: myName,
                 time: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
-            });
-            saveAndBroadcast();
+            };
+            messages.push(msg);
+            saveAndBroadcast(msg);
             renderMessages();
             closeGifts();
             showConfetti();
@@ -1272,7 +1452,7 @@
 
         // Permissions & GPS Transitions
         function openPermissions() {
-            closeSettings(); // ปิด Settings อัตโนมัติและไปหน้า Permissions
+            closeSettings();
             document.getElementById('permissionsModal').classList.add('active');
         }
 
@@ -1299,14 +1479,15 @@
                 const lng = pos.coords.longitude;
                 const myName = localStorage.getItem(DB_KEY + 'myName') || 'เรา';
 
-                messages.push({
+                const msg = {
                     id: Date.now(),
                     location: { lat, lng },
                     sender: 'you',
                     senderName: myName,
                     time: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
-                });
-                saveAndBroadcast();
+                };
+                messages.push(msg);
+                saveAndBroadcast(msg);
                 renderMessages();
                 closePermissions();
                 alert('✅ ส่งตำแหน่งพิกัด GPS เรียบร้อยแล้ว');
@@ -1317,7 +1498,7 @@
 
         // QR Sync & Backup Transitions
         function openQRSync() {
-            closeSettings(); // ปิด Settings อัตโนมัติและไปหน้า Sync
+            closeSettings();
             document.getElementById('qrModal').classList.add('active');
         }
 
@@ -1339,6 +1520,7 @@
                 pin: localStorage.getItem(DB_KEY + 'pin'),
                 myName: localStorage.getItem(DB_KEY + 'myName'),
                 partnerName: localStorage.getItem(DB_KEY + 'partnerName'),
+                peerId: myPeerId,
                 messages: textOnlyMessages,
                 letters: getData('letters', [])
             };
@@ -1389,20 +1571,25 @@
                 const syncData = JSON.parse(jsonStr);
 
                 if (syncData.messages) {
-                    messages = syncData.messages;
-                    saveAndBroadcast();
+                    mergeMessages(syncData.messages);
                 }
 
                 if (syncData.letters) {
-                    saveData('letters', syncData.letters);
+                    mergeLetters(syncData.letters);
                 }
 
                 if (syncData.myName) localStorage.setItem(DB_KEY + 'partnerName', syncData.myName);
                 if (syncData.partnerName) localStorage.setItem(DB_KEY + 'myName', syncData.partnerName);
 
+                // สถาปนาการเชื่อมต่อ P2P ข้ามเครื่องสดๆ ทันทีที่ใส่โค้ด
+                if (syncData.peerId) {
+                    localStorage.setItem(DB_KEY + 'partnerPeerId', syncData.peerId);
+                    connectToPartnerPeer(syncData.peerId);
+                }
+
                 renderMessages();
                 updateProfileUI();
-                statusEl.textContent = '✅ ซิงค์ข้อมูลสำเร็จเรียบร้อย!';
+                statusEl.textContent = '✅ ซิงค์ข้อมูลและเชื่อมต่อห้องแชทสำเร็จ!';
                 
                 setTimeout(() => {
                     closeQRSync();
@@ -1418,6 +1605,7 @@
                 pin: localStorage.getItem(DB_KEY + 'pin'),
                 myName: localStorage.getItem(DB_KEY + 'myName'),
                 partnerName: localStorage.getItem(DB_KEY + 'partnerName'),
+                peerId: myPeerId,
                 messages: messages,
                 letters: getData('letters', [])
             };
@@ -1438,12 +1626,17 @@
                 try {
                     const data = JSON.parse(event.target.result);
                     if (data.messages) {
-                        messages = data.messages;
-                        saveAndBroadcast();
+                        mergeMessages(data.messages);
                     }
-                    if (data.letters) saveData('letters', data.letters);
+                    if (data.letters) {
+                        mergeLetters(data.letters);
+                    }
+                    if (data.peerId) {
+                        localStorage.setItem(DB_KEY + 'partnerPeerId', data.peerId);
+                        connectToPartnerPeer(data.peerId);
+                    }
                     renderMessages();
-                    alert('✅ นำเข้าข้อมูลสำเร็จแล้ว');
+                    alert('✅ นำเข้าข้อมูลและรวมประวัติแชทสำเร็จแล้ว');
                     closeQRSync();
                 } catch(err) {
                     alert('❌ ไฟล์ไม่ถูกต้อง');
