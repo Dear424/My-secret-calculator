@@ -1,443 +1,300 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Cat P2P Couple Chat v4.0</title>
-  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-    body { background-color: #0d1117; color: #e6edf3; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notification Popup with Sound System</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Sukhumvit Set', 'Segoe UI', Tahoma, sans-serif;
+        }
 
-    /* Header */
-    header {
-      background: #161b22;
-      padding: 10px 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid #30363d;
-      z-index: 10;
-    }
-    .header-info { display: flex; align-items: center; gap: 10px; }
-    .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #f85149; }
-    .status-dot.online { background: #3fb950; box-shadow: 0 0 8px #3fb950; }
-    .chat-title { font-weight: bold; font-size: 0.95rem; color: #f0f6fc; }
-    .mood-tag { font-size: 0.75rem; color: #a5d6ff; background: rgba(56, 139, 253, 0.15); padding: 2px 6px; border-radius: 10px; }
-    .btn-icon { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #8b949e; padding: 4px; }
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
 
-    /* Drawer ตั้งค่า & Permissions */
-    .drawer {
-      background: #161b22;
-      padding: 14px;
-      display: none;
-      flex-direction: column;
-      gap: 10px;
-      border-bottom: 1px solid #30363d;
-      font-size: 0.85rem;
-      max-height: 80vh;
-      overflow-y: auto;
-    }
-    .drawer select, .drawer input[type="text"], .drawer input[type="password"], .drawer input[type="date"] {
-      background: #0d1117; border: 1px solid #30363d; color: #3fb950; padding: 8px; border-radius: 6px; width: 100%; outline: none;
-    }
-    .toggle-row { display: flex; justify-content: space-between; align-items: center; background: #21262d; padding: 8px 12px; border-radius: 6px; }
-    .drawer button { background: #238636; color: #fff; font-weight: bold; padding: 10px; border-radius: 6px; border: none; cursor: pointer; margin-top: 4px; }
+        /* Demo Controller UI */
+        .controls-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 320px;
+        }
 
-    /* Days Counter Banner */
-    .days-banner { background: linear-gradient(90deg, #7c3aed, #db2777); text-align: center; padding: 6px; font-size: 0.75rem; font-weight: bold; color: #fff; }
+        .controls-card h2 {
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+            color: #cbd5e1;
+        }
 
-    /* Chat Area */
-    .chat-container {
-      flex: 1;
-      padding: 12px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      background: #0d1117;
-    }
-    .bubble {
-      max-width: 80%;
-      padding: 10px 14px;
-      border-radius: 16px;
-      font-size: 0.95rem;
-      line-height: 1.4;
-      word-break: break-word;
-      position: relative;
-    }
-    .bubble.me { align-self: flex-end; background: #238636; color: #fff; border-bottom-right-radius: 4px; }
-    .bubble.them { align-self: flex-start; background: #21262d; color: #c9d1d9; border-bottom-left-radius: 4px; border: 1px solid #30363d; }
-    .bubble.pending { opacity: 0.7; border: 1px dashed #e3b341; }
-    .bubble .meta { font-size: 0.65rem; opacity: 0.75; margin-top: 4px; text-align: right; display: flex; justify-content: flex-end; gap: 4px; align-items: center; }
+        .btn {
+            padding: 12px 16px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
 
-    /* Gift Request Card */
-    .gift-card { background: #2e1065; border: 1px solid #a855f7; border-radius: 12px; padding: 12px; width: 220px; }
-    .gift-title { font-weight: bold; color: #e9d5ff; font-size: 0.85rem; }
-    .gift-item { font-size: 1rem; color: #fff; font-weight: bold; margin: 6px 0; background: rgba(0,0,0,0.3); padding: 6px; border-radius: 6px; text-align: center; }
-    .btn-ack-gift { background: #a855f7; color: #fff; border: none; padding: 6px; width: 100%; border-radius: 6px; font-weight: bold; margin-top: 6px; cursor: pointer; }
+        .btn:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+        }
 
-    /* Quick Toolbar */
-    .quick-bar { display: flex; gap: 6px; padding: 8px 12px; background: #161b22; overflow-x: auto; border-top: 1px solid #21262d; }
-    .btn-quick { background: #21262d; color: #58a6ff; border: 1px solid #30363d; padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; white-space: nowrap; cursor: pointer; }
-    .btn-quick.alert { color: #f85149; border-color: #8e1519; }
+        .btn-success { background: #10b981; }
+        .btn-warning { background: #f59e0b; }
+        .btn-danger  { background: #ef4444; }
+        .btn-info    { background: #3b82f6; }
 
-    /* Input Footer */
-    .chat-footer { display: flex; padding: 10px 12px; background: #161b22; gap: 8px; align-items: center; border-top: 1px solid #30363d; }
-    .chat-footer input {
-      flex: 1; background: #0d1117; border: 1px solid #30363d; color: #fff; padding: 10px 14px; border-radius: 20px; outline: none; font-size: 0.95rem;
-    }
-    .chat-footer input:focus { border-color: #58a6ff; }
-    .btn-send { background: #238636; color: #fff; border: none; width: 40px; height: 40px; border-radius: 50%; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        /* Notification Toast Container */
+        #notification-container {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 380px;
+            width: calc(100% - 48px);
+            pointer-events: none;
+        }
 
-    /* Floating Hearts Container */
-    #heart-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; }
-    .floating-heart { position: absolute; font-size: 2rem; animation: floatUp 2s ease-out forwards; }
-    @keyframes floatUp {
-      0% { transform: translateY(100vh) scale(0.5); opacity: 1; }
-      100% { transform: translateY(-10vh) scale(1.5); opacity: 0; }
-    }
+        /* Individual Toast Style */
+        .toast {
+            pointer-events: auto;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-left: 4px solid #3b82f6;
+            padding: 16px;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            position: relative;
+            overflow: hidden;
+            animation: slideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            transition: all 0.3s ease;
+        }
 
-    /* Modal ขอของ */
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 1000; }
-    .modal-box { background: #161b22; padding: 20px; border-radius: 12px; width: 85%; max-width: 320px; border: 1px solid #a855f7; }
-    .modal-box h3 { color: #e9d5ff; font-size: 1rem; margin-bottom: 10px; }
-    .modal-box input { width: 100%; padding: 10px; background: #0d1117; border: 1px solid #30363d; color: #fff; border-radius: 6px; margin-bottom: 10px; }
-    .modal-box button { width: 100%; padding: 10px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; margin-top: 4px; }
-  </style>
+        .toast.toast-hide {
+            animation: slideOut 0.3s cubic-bezier(0.7, 0, 0.84, 0) forwards;
+        }
+
+        /* Type Variations */
+        .toast.success { border-left-color: #10b981; }
+        .toast.warning { border-left-color: #f59e0b; }
+        .toast.danger  { border-left-color: #ef4444; }
+        .toast.info    { border-left-color: #3b82f6; }
+
+        .toast-icon {
+            font-size: 1.25rem;
+            line-height: 1;
+            margin-top: 2px;
+        }
+
+        .toast-content {
+            flex: 1;
+        }
+
+        .toast-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #f1f5f9;
+            margin-bottom: 2px;
+        }
+
+        .toast-message {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            line-height: 1.4;
+        }
+
+        .toast-close {
+            background: transparent;
+            border: none;
+            color: #64748b;
+            cursor: pointer;
+            font-size: 1.1rem;
+            padding: 0 4px;
+            transition: color 0.2s;
+        }
+
+        .toast-close:hover {
+            color: #f8fafc;
+        }
+
+        /* Auto Dismiss Progress Bar */
+        .toast-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            transform-origin: left;
+            animation: progress linear forwards;
+        }
+
+        .toast.success .toast-progress { background: #10b981; }
+        .toast.warning .toast-progress { background: #f59e0b; }
+        .toast.danger  .toast-progress { background: #ef4444; }
+        .toast.info    .toast-progress { background: #3b82f6; }
+
+        /* Animations */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(100%) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(100%) scale(0.9);
+            }
+        }
+
+        @keyframes progress {
+            from { transform: scaleX(1); }
+            to   { transform: scaleX(0); }
+        }
+    </style>
 </head>
 <body>
 
-  <div id="heart-container"></div>
-
-  <!-- Banner นับวันครบรอบ -->
-  <div class="days-banner" id="days-banner">💕 คบกันมาแล้ว 1 วัน</div>
-
-  <!-- Header -->
-  <header>
-    <div class="header-info">
-      <div id="dot" class="status-dot"></div>
-      <div>
-        <div class="chat-title">🐾 CAT P2P CHAT <span id="partner-mood" class="mood-tag">คิดถึง 💖</span></div>
-        <div id="status-text" style="font-size: 0.7rem; color: #8b949e;">Offline (ข้อความจะดองไว้นำส่งเมื่อต่อเน็ต)</div>
-      </div>
-    </div>
-    <button class="btn-icon" onclick="toggleDrawer()">⚙️</button>
-  </header>
-
-  <!-- Drawer ตั้งค่า & Permissions -->
-  <div id="drawer" class="drawer">
-    <div style="font-weight: bold; color: #58a6ff;">1. การเชื่อมต่อหลัก</div>
-    <div>ตัวละครของคุณ:</div>
-    <select id="role-select" onchange="initPeer()">
-      <option value="Sechuan">🐱 ผมคือ: แมวเสฉวน</option>
-      <option value="KaiToun">😸 ผมคือ: แมวไข่ตุ๋น</option>
-    </select>
-    <div>รหัสลับเข้าห้อง:</div>
-    <input type="password" id="secret-key" value="cat-love-2026">
-    
-    <div style="font-weight: bold; color: #58a6ff; margin-top: 6px;">2. สิทธิ์ความยินยอม (Permissions)</div>
-    <div class="toggle-row">
-      <span>📍 ยินยอมให้แฟนขอพิกัด GPS</span>
-      <input type="checkbox" id="perm-gps" checked>
-    </div>
-    <div class="toggle-row">
-      <span>🎙️ ยินยอมให้แฟนฟังเสียงไมค์</span>
-      <input type="checkbox" id="perm-audio" checked>
+    <!-- Controls UI -->
+    <div class="controls-card">
+        <h2>ทดสอบระบบการแจ้งเตือน</h2>
+        <button class="btn btn-success" onclick="notify('success', 'ทำรายการสำเร็จ', 'บันทึกข้อมูลเรียบร้อยแล้ว')">Success Notification</button>
+        <button class="btn btn-warning" onclick="notify('warning', 'คำเตือนระบบ', 'พื้นที่จัดเก็บของคุณใกล้จะเต็ม')">Warning Notification</button>
+        <button class="btn btn-danger"  onclick="notify('danger',  'เกิดข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้')">Danger Notification</button>
+        <button class="btn btn-info"    onclick="notify('info',    'ข้อความใหม่', 'คุณได้รับข้อความจากทีมสนับสนุน')">Info Notification</button>
     </div>
 
-    <div style="font-weight: bold; color: #58a6ff; margin-top: 6px;">3. ลูกเล่นคู่รัก</div>
-    <div>ตั้งอารมณ์ของคุณ (Mood):</div>
-    <select id="my-mood" onchange="updateMyMood()">
-      <option value="คิดถึงมาก 💖">คิดถึงมาก 💖</option>
-      <option value="ทำงานอยู่นะ 💼">ทำงานอยู่นะ 💼</option>
-      <option value="กินข้าวอยู่ 🍔">กินข้าวอยู่ 🍔</option>
-      <option value="งอนแล้วนะ 😤">งอนแล้วนะ 😤</option>
-      <option value="ง่วงนอนแล้ว 😴">ง่วงนอนแล้ว 😴</option>
-    </select>
-    <div>วันที่เริ่มคบกัน:</div>
-    <input type="date" id="love-date" value="2026-01-01" onchange="calcLoveDays()">
+    <!-- Notification Container -->
+    <div id="notification-container"></div>
 
-    <button onclick="initPeer(); toggleDrawer();">อัปเดต & เชื่อมต่อ P2P</button>
-  </div>
+    <script>
+        // Web Audio API Sound Generator (ทำงานได้เลยโดยไม่ต้องพึ่งไฟล์ .mp3 ภายนอก)
+        function playNotificationSound(type = 'info') {
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) return;
+                const audioCtx = new AudioContext();
 
-  <!-- Area แชต -->
-  <div class="chat-container" id="chat-box">
-    <div style="text-align: center; color: #484f58; font-size: 0.75rem; margin: 10px 0;">
-      🔒 ระบบ P2P ตรงระหว่างสองเครื่อง (มีระบบฝากข้อความเมื่ออีกฝ่ายไม่ออน)
-    </div>
-  </div>
+                // ปรับแต่งความถี่และโทนเสียงตามประเภท
+                const sounds = {
+                    success: [ { freq: 523.25, time: 0 }, { freq: 659.25, time: 0.1 }, { freq: 783.99, time: 0.2 } ], // C5, E5, G5 (คอร์ดสดใส)
+                    warning: [ { freq: 440, time: 0 }, { freq: 440, time: 0.15 } ],                                  // A4, A4 (เตือนเบาๆ)
+                    danger:  [ { freq: 311.13, time: 0 }, { freq: 293.66, time: 0.15 } ],                              // Eb4, D4 (เสียงทุ้มเตือนภัย)
+                    info:    [ { freq: 587.33, time: 0 }, { freq: 880, time: 0.12 } ]                                  // D5, A5 (ชานม)
+                };
 
-  <!-- Quick Action Toolbar -->
-  <div class="quick-bar">
-    <button class="btn-quick" style="color:#ec4899; border-color:#ec4899;" onclick="sendHearts()">💖 ส่งหัวใจ</button>
-    <button class="btn-quick alert" onclick="sendQuickAlert()">🍚 แจ้งหิวข้าว!</button>
-    <button class="btn-quick" style="color: #a855f7; border-color: #a855f7;" onclick="openGiftModal()">🎁 ขอของแฟน</button>
-    <button class="btn-quick" onclick="requestLocation()">📍 ขอพิกัด</button>
-    <button class="btn-quick alert" onclick="requestAudioStream()">🎙️ ฟังเสียงไมค์</button>
-  </div>
+                const sequence = sounds[type] || sounds.info;
 
-  <!-- Input Footer -->
-  <div class="chat-footer">
-    <input type="text" id="msg-input" placeholder="พิมพ์ข้อความ..." onkeypress="if(event.key==='Enter') sendText();" autocomplete="off">
-    <button class="btn-send" onclick="sendText()">➔</button>
-  </div>
+                sequence.forEach(note => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
 
-  <!-- Modal ขอของ -->
-  <div id="gift-modal" class="modal">
-    <div class="modal-box">
-      <h3>🎁 ขอของจากแฟน</h3>
-      <input type="text" id="gift-name" placeholder="เช่น ชานมไข่มุก, ขนม, สกินเกม">
-      <button style="background: #a855f7; color: #fff;" onclick="sendGiftRequest()">ส่งคำขอของ</button>
-      <button style="background: transparent; color: #8b949e;" onclick="closeGiftModal()">ยกเลิก</button>
-    </div>
-  </div>
+                    osc.type = type === 'danger' ? 'sawtooth' : 'sine';
+                    osc.frequency.setValueAtTime(note.freq, audioCtx.currentTime + note.time);
 
-  <audio id="remote-audio" autoplay></audio>
+                    gain.gain.setValueAtTime(0.15, audioCtx.currentTime + note.time);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + note.time + 0.25);
 
-  <script>
-    let peer = null, conn = null, myRole = "", targetRole = "";
-    let outboxQueue = []; // กล่องฝากข้อความเวลาอีกฝ่ายไม่ออน
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
 
-    function toggleDrawer() {
-      const d = document.getElementById('drawer');
-      d.style.display = (d.style.display === 'flex') ? 'none' : 'flex';
-    }
-
-    function getTime() {
-      return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    }
-
-    function calcLoveDays() {
-      const startDate = new Date(document.getElementById('love-date').value);
-      const today = new Date();
-      const diffTime = Math.abs(today - startDate);
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      document.getElementById('days-banner').innerText = `💕 คบกันมาแล้ว ${diffDays} วัน`;
-    }
-
-    function initPeer() {
-      const secret = document.getElementById('secret-key').value.trim();
-      myRole = document.getElementById('role-select').value;
-      targetRole = (myRole === "Sechuan") ? "KaiToun" : "Sechuan";
-
-      if (!secret) return alert("กรุณาใส่รหัสผ่านลับ");
-
-      if (peer) peer.destroy();
-
-      peer = new Peer(`${secret}-${myRole}`, {
-        config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
-      });
-
-      peer.on('open', () => {
-        document.getElementById('status-text').innerText = `Online (${myRole})`;
-        document.getElementById('dot').className = "status-dot online";
-        connectTarget(`${secret}-${targetRole}`);
-      });
-
-      peer.on('connection', (c) => { conn = c; setupListener(); });
-      
-      peer.on('call', (call) => {
-        // เช็กสิทธิ์ว่ายินยอมให้ฟังเสียงไหม
-        const allowAudio = document.getElementById('perm-audio').checked;
-        if (allowAudio) {
-          navigator.mediaDevices.getUserMedia({ audio: true }).then(s => call.answer(s)).catch(() => call.answer());
-        } else {
-          alert("อีกฝ่ายพยายามขอฟังเสียงไมค์ แต่คุณปิดสิทธิ์ไว้ในระบบ");
+                    osc.start(audioCtx.currentTime + note.time);
+                    osc.stop(audioCtx.currentTime + note.time + 0.25);
+                });
+            } catch (e) {
+                console.warn("Audio Context error or user has not interacted with document yet.", e);
+            }
         }
-      });
 
-      calcLoveDays();
-    }
+        // Icons Map
+        const icons = {
+            success: '✓',
+            warning: '⚠️',
+            danger:  '✕',
+            info:    'ℹ️'
+        };
 
-    function connectTarget(targetId) {
-      if (!peer) return;
-      conn = peer.connect(targetId, { reliable: true });
-      setupListener();
-    }
+        // Main Notification Function
+        function notify(type = 'info', title = '', message = '', duration = 4000) {
+            const container = document.getElementById('notification-container');
 
-    function setupListener() {
-      if (!conn) return;
+            // เล่นเสียงแจ้งเตือน
+            playNotificationSound(type);
 
-      conn.on('open', () => {
-        document.getElementById('status-text').innerText = `คุยกับ [${targetRole}] อยู่`;
-        // ยิงสถานะอารมณ์ของเราไปบอกแฟน
-        updateMyMood();
-        // เคลียร์ข้อความดอง (Outbox Sync)
-        flushOutbox();
-      });
+            // สร้าง Element
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
 
-      conn.on('data', (data) => {
-        if (data.type === 'TEXT') appendBubble(data.text, 'them', data.time);
-        else if (data.type === 'GIFT') appendGiftBubble(data.item, 'them', data.time);
-        else if (data.type === 'GIFT_ACK') alert(`🎉 ${targetRole} กดสัญญาว่าจะซื้อ "${data.item}" ให้คุณแล้ว!`);
-        else if (data.type === 'MOOD') document.getElementById('partner-mood').innerText = data.mood;
-        else if (data.type === 'HEARTS') triggerHeartAnimation();
-        else if (data.type === 'REQ_LOCATION') handleLocationRequest();
-        else if (data.type === 'RESP_LOCATION') alert(`📍 พิกัดแฟน:\nhttps://maps.google.com/?q=${data.lat},${data.lng}`);
-        else if (data.type === 'ERR_PERM') alert(`⚠️ ${data.msg}`);
-      });
-    }
+            toast.innerHTML = `
+                <div class="toast-icon">${icons[type]}</div>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close" onclick="closeToast(this.parentElement)">&times;</button>
+                <div class="toast-progress" style="animation-duration: ${duration}ms;"></div>
+            `;
 
-    // ระบบส่งข้อความ + เคลียร์แป้นพิมพ์ค้างไว้พร้อมพิมพ์ต่อ
-    function sendText() {
-      const input = document.getElementById('msg-input');
-      const text = input.value.trim();
-      if (!text) return;
+            container.appendChild(toast);
 
-      const time = getTime();
-      const payload = { type: 'TEXT', text, time };
+            // Auto Dismiss
+            const timer = setTimeout(() => {
+                closeToast(toast);
+            }, duration);
 
-      if (conn && conn.open) {
-        conn.send(payload);
-        appendBubble(text, 'me', time);
-      } else {
-        // ถ้าไม่ออน ให้ดองไว้ใน Outbox
-        outboxQueue.push(payload);
-        appendBubble(text, 'me', time, true); // true = pending status
-      }
+            // เก็บ Timer ไว้ถ้าต้องการยกเลิก
+            toast.dataset.timer = timer;
+        }
 
-      input.value = '';
-      input.focus(); // แป้นพิมพ์พร้อมพิมพ์ต่อทันที
-    }
-
-    // ยิงข้อความค้างส่งเมื่อต่อเน็ตติด
-    function flushOutbox() {
-      if (outboxQueue.length > 0 && conn && conn.open) {
-        outboxQueue.forEach(payload => conn.send(payload));
-        outboxQueue = [];
-        // ปรับหน้าตาข้อความดองให้กลายเป็นส่งแล้ว
-        document.querySelectorAll('.bubble.pending').forEach(el => {
-          el.classList.remove('pending');
-          const meta = el.querySelector('.meta');
-          if (meta) meta.innerHTML = `${meta.innerText.replace('🕒', '')} ✓`;
-        });
-      }
-    }
-
-    function appendBubble(text, side, time, isPending = false) {
-      const box = document.getElementById('chat-box');
-      const div = document.createElement('div');
-      div.className = `bubble ${side} ${isPending ? 'pending' : ''}`;
-      div.innerHTML = `<div>${escapeHTML(text)}</div><span class="meta">${time} ${isPending ? '🕒 รอนำส่ง' : ''}</span>`;
-      box.appendChild(div);
-      box.scrollTop = box.scrollHeight;
-    }
-
-    // ตั้งสถานะอารมณ์
-    function updateMyMood() {
-      const mood = document.getElementById('my-mood').value;
-      if (conn && conn.open) {
-        conn.send({ type: 'MOOD', mood });
-      }
-    }
-
-    // เอฟเฟกต์ส่งหัวใจลอย
-    function sendHearts() {
-      if (conn && conn.open) conn.send({ type: 'HEARTS' });
-      triggerHeartAnimation();
-    }
-
-    function triggerHeartAnimation() {
-      const container = document.getElementById('heart-container');
-      for (let i = 0; i < 15; i++) {
-        setTimeout(() => {
-          const heart = document.createElement('div');
-          heart.className = 'floating-heart';
-          heart.innerText = ['💖', '💗', '💕', '❤️', '😻'][Math.floor(Math.random() * 5)];
-          heart.style.left = Math.random() * 90 + '%';
-          container.appendChild(heart);
-          setTimeout(() => heart.remove(), 2000);
-        }, i * 100);
-      }
-      if ("vibrate" in navigator) navigator.vibrate([100, 50, 100]);
-    }
-
-    // ขอของ
-    function openGiftModal() { document.getElementById('gift-modal').style.display = 'flex'; }
-    function closeGiftModal() { document.getElementById('gift-modal').style.display = 'none'; }
-
-    function sendGiftRequest() {
-      const item = document.getElementById('gift-name').value.trim();
-      if (!item) return;
-
-      const time = getTime();
-      const payload = { type: 'GIFT', item, time };
-
-      if (conn && conn.open) {
-        conn.send(payload);
-        appendGiftBubble(item, 'me', time);
-      } else {
-        outboxQueue.push(payload);
-        appendGiftBubble(item, 'me', time, true);
-      }
-
-      closeGiftModal();
-      document.getElementById('gift-name').value = '';
-    }
-
-    function appendGiftBubble(item, side, time, isPending = false) {
-      const box = document.getElementById('chat-box');
-      const div = document.createElement('div');
-      div.style.alignSelf = (side === 'me') ? 'flex-end' : 'flex-start';
-      
-      const isThem = (side === 'them');
-      div.innerHTML = `
-        <div class="gift-card">
-          <div class="gift-title">🎁 ${side === 'me' ? 'คุณส่งคำขอของ' : 'แฟนส่งคำขอของ'} ${isPending ? '(🕒 รอนำส่ง)' : ''}</div>
-          <div class="gift-item">${escapeHTML(item)}</div>
-          ${isThem ? `<button class="btn-ack-gift" onclick="ackGift('${escapeHTML(item)}')">❤️ ตกลง ซื้อให้!</button>` : '<div style="font-size:0.7rem; color:#a855f7; text-align:center;">รอแฟนตอบรับ...</div>'}
-        </div>
-      `;
-      box.appendChild(div);
-      box.scrollTop = box.scrollHeight;
-    }
-
-    function ackGift(item) {
-      if (conn && conn.open) {
-        conn.send({ type: 'GIFT_ACK', item });
-        alert(`ส่งคำตอบรับเรียบร้อย! คุณสัญญาว่าจะซื้อ ${item} ให้แฟนแล้ว ❤️`);
-      }
-    }
-
-    function sendQuickAlert() {
-      const input = document.getElementById('msg-input');
-      input.value = "🍚 แมวหิวข้าวแล้วนะ!";
-      sendText();
-    }
-
-    function requestLocation() {
-      if (!conn || !conn.open) return alert("อีกฝ่ายยังไม่ออน");
-      conn.send({ type: 'REQ_LOCATION' });
-      alert("ส่งคำขอพิกัดเรียบร้อย");
-    }
-
-    function handleLocationRequest() {
-      const allowGPS = document.getElementById('perm-gps').checked;
-      if (allowGPS) {
-        navigator.geolocation.getCurrentPosition(pos => {
-          conn.send({ type: 'RESP_LOCATION', lat: pos.coords.latitude, lng: pos.coords.longitude });
-        });
-      } else {
-        conn.send({ type: 'ERR_PERM', msg: 'แฟนของคุณปิดสิทธิ์การเข้าถึงพิกัด GPS ไว้' });
-      }
-    }
-
-    function requestAudioStream() {
-      if (!peer || !conn || !conn.open) return alert("อีกฝ่ายยังไม่ออน");
-      const secret = document.getElementById('secret-key').value.trim();
-      navigator.mediaDevices.getUserMedia({ audio: true }).then(s => {
-        const call = peer.call(`${secret}-${targetRole}`, s);
-        call.on('stream', rs => {
-          document.getElementById('remote-audio').srcObject = rs;
-          alert("🎙️ รับสัญญาณเสียงเรียบร้อย");
-        });
-      });
-    }
-
-    function escapeHTML(str) {
-      return str.replace(/[&<>'"]/g, tag => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[tag]||tag));
-    }
-  </script>
+        // Close Toast Function
+        function closeToast(toast) {
+            if (toast.classList.contains('toast-hide')) return;
+            
+            clearTimeout(toast.dataset.timer);
+            toast.classList.add('toast-hide');
+            
+            toast.addEventListener('animationend', () => {
+                toast.remove();
+            });
+        }
+    </script>
 </body>
 </html>
