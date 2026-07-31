@@ -698,6 +698,7 @@
                 <div class="header-actions">
                     <button class="header-btn" onclick="openSavedMessages()" title="ข้อความที่เก็บไว้">❤️</button>
                     <button class="header-btn" onclick="openImportantDates()" title="วันสำคัญ">📅</button>
+                    <button class="header-btn" onclick="openSurprise()" title="ส่งเซอร์ไพรส์">🎉</button>
                     <button class="header-btn" onclick="openSettings()" title="ตั้งค่า">⚙️</button>
                 </div>
             </div>
@@ -751,6 +752,7 @@
             <button class="modal-close" onclick="closeSettings()">✕</button>
             <div class="modal-header">⚙️ ตั้งค่า</div>
             <div style="display: flex; flex-direction: column; gap: 15px;">
+                <button class="add-btn" onclick="openPermissions()" style="background: #9C27B0;">🔐 สิทธิ์การเข้าถึง</button>
                 <button class="add-btn" onclick="openQRSync()" style="background: #4CAF50;">🔗 ซิงค์ข้อมูล (QR Code)</button>
                 <button class="add-btn" onclick="clearAllData()" style="background: #FF6B6B;">🗑️ ลบข้อมูลทั้งหมด</button>
                 <button class="add-btn" onclick="logout()" style="background: #FF6B6B;">🚪 ออกจากระบบ</button>
@@ -792,6 +794,47 @@
         </div>
     </div>
 
+    <div class="modal" id="permissionsModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closePermissions()">✕</button>
+            <div class="modal-header">🔐 สิทธิ์การเข้าถึง</div>
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <div style="background: #FFF9F7; border: 1px solid #F0E8E5; border-radius: 12px; padding: 15px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                        <div>
+                            <p style="font-weight: 600; color: #2C3E50; margin-bottom: 3px;">🎤 ฟังเสียงแฟน</p>
+                            <p style="font-size: 12px; color: #999;">ให้สิทธิ์ฟังเสียงของแฟน</p>
+                        </div>
+                        <input type="checkbox" id="audioPermission" onchange="updatePermission('audio')" style="width: 20px; height: 20px; cursor: pointer;">
+                    </div>
+                    <div id="audioStatus" style="font-size: 12px; color: #999; padding: 8px; background: white; border-radius: 6px; text-align: center;">❌ ไม่อนุญาต</div>
+                </div>
+                <div style="background: #FFF9F7; border: 1px solid #F0E8E5; border-radius: 12px; padding: 15px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                        <div>
+                            <p style="font-weight: 600; color: #2C3E50; margin-bottom: 3px;">📍 แชร์ตำแหน่ง GPS</p>
+                            <p style="font-size: 12px; color: #999;">ให้สิทธิ์ดูตำแหน่งของแฟน</p>
+                        </div>
+                        <input type="checkbox" id="gpsPermission" onchange="updatePermission('gps')" style="width: 20px; height: 20px; cursor: pointer;">
+                    </div>
+                    <div id="gpsStatus" style="font-size: 12px; color: #999; padding: 8px; background: white; border-radius: 6px; text-align: center;">❌ ไม่อนุญาต</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal" id="surpriseModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeSurprise()">✕</button>
+            <div class="modal-header">🎉 ส่งเซอร์ไพรส์</div>
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <button class="add-btn" onclick="sendSurprise('heart')" style="background: #FF6B6B; font-size: 16px;">💕 ส่งหัวใจ</button>
+                <button class="add-btn" onclick="sendSurprise('kiss')" style="background: #FF1493; font-size: 16px;">😘 ส่งจูบ</button>
+                <button class="add-btn" onclick="sendSurprise('hug')" style="background: #FF69B4; font-size: 16px;">🤗 ส่งกอด</button>
+                <button class="add-btn" onclick="sendSurprise('confetti')" style="background: #FFD700; font-size: 16px;">🎊 ส่งเซอร์ไพรส์</button>
+                <button class="add-btn" onclick="sendSurprise('love')" style="background: #FF4500; font-size: 16px;">❤️ ส่งความรัก</button>
+            </div>
+        </div>
+    </div>
     <script>
         // Data Management
         const DB_KEY = 'coupleChat_';
@@ -1249,6 +1292,123 @@
 
         function closeQRSync() {
             document.getElementById('qrModal').classList.remove('active');
+        }
+
+        // Permissions
+        function openPermissions() {
+            loadPermissions();
+            document.getElementById('permissionsModal').classList.add('active');
+        }
+
+        function closePermissions() {
+            document.getElementById('permissionsModal').classList.remove('active');
+        }
+
+        function loadPermissions() {
+            const audioAllowed = localStorage.getItem(DB_KEY + 'audioPermission') === 'true';
+            const gpsAllowed = localStorage.getItem(DB_KEY + 'gpsPermission') === 'true';
+
+            document.getElementById('audioPermission').checked = audioAllowed;
+            document.getElementById('gpsPermission').checked = gpsAllowed;
+
+            document.getElementById('audioStatus').textContent = audioAllowed ? '✅ อนุญาต' : '❌ ไม่อนุญาต';
+            document.getElementById('gpsStatus').textContent = gpsAllowed ? '✅ อนุญาต' : '❌ ไม่อนุญาต';
+        }
+
+        function updatePermission(type) {
+            const checkbox = document.getElementById(type + 'Permission');
+            const status = document.getElementById(type + 'Status');
+            
+            localStorage.setItem(DB_KEY + type + 'Permission', checkbox.checked);
+            status.textContent = checkbox.checked ? '✅ อนุญาต' : '❌ ไม่อนุญาต';
+
+            if (checkbox.checked) {
+                if (type === 'audio') {
+                    alert('🎤 สิทธิ์ฟังเสียงเปิดใช้งานแล้ว');
+                } else if (type === 'gps') {
+                    alert('📍 สิทธิ์แชร์ตำแหน่งเปิดใช้งานแล้ว');
+                }
+            }
+        }
+
+        // Surprise Features
+        function openSurprise() {
+            document.getElementById('surpriseModal').classList.add('active');
+        }
+
+        function closeSurprise() {
+            document.getElementById('surpriseModal').classList.remove('active');
+        }
+
+        function sendSurprise(type) {
+            let emoji = '';
+            let message = '';
+
+            switch(type) {
+                case 'heart':
+                    emoji = '💕';
+                    message = 'ส่งหัวใจให้แฟน';
+                    break;
+                case 'kiss':
+                    emoji = '😘';
+                    message = 'ส่งจูบให้แฟน';
+                    break;
+                case 'hug':
+                    emoji = '🤗';
+                    message = 'ส่งกอดให้แฟน';
+                    break;
+                case 'confetti':
+                    emoji = '🎊';
+                    message = 'ส่งเซอร์ไพรส์ให้แฟน';
+                    triggerConfetti();
+                    break;
+                case 'love':
+                    emoji = '❤️';
+                    message = 'ส่งความรักให้แฟน';
+                    break;
+            }
+
+            const msg = {
+                id: Date.now(),
+                text: emoji + ' ' + message,
+                sender: 'you',
+                timestamp: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }),
+                date: new Date().toLocaleDateString('th-TH'),
+                isSurprise: true
+            };
+
+            messages.push(msg);
+            saveData('messages', messages);
+            renderMessages();
+            closeSurprise();
+            scrollToBottom();
+        }
+
+        function triggerConfetti() {
+            const container = document.getElementById('messagesArea');
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.style.position = 'fixed';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.top = '-10px';
+                confetti.style.fontSize = '20px';
+                confetti.style.pointerEvents = 'none';
+                confetti.style.zIndex = '9999';
+                confetti.textContent = ['🎉', '🎊', '💕', '✨', '🌟'][Math.floor(Math.random() * 5)];
+                document.body.appendChild(confetti);
+
+                let top = -10;
+                const interval = setInterval(() => {
+                    top += Math.random() * 3 + 2;
+                    confetti.style.top = top + 'px';
+                    confetti.style.opacity = 1 - (top / window.innerHeight);
+
+                    if (top > window.innerHeight) {
+                        clearInterval(interval);
+                        confetti.remove();
+                    }
+                }, 30);
+            }
         }
 
         // Utility
