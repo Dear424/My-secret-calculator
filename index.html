@@ -35,6 +35,7 @@
             overflow: hidden;
             color: #e0e0e0;
             border: 1px solid rgba(255,255,255,0.1);
+            position: relative;
         }
 
         /* Login Screen */
@@ -48,9 +49,7 @@
             min-height: 100%;
         }
 
-        .login-screen.hidden {
-            display: none;
-        }
+        .login-screen.hidden { display: none; }
 
         .logo {
             width: 100px;
@@ -61,16 +60,23 @@
             align-items: center;
             justify-content: center;
             font-size: 50px;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             backdrop-filter: blur(10px);
             border: 2px solid rgba(255, 255, 255, 0.2);
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
 
         .login-title {
-            font-size: 36px;
+            font-size: 32px;
             font-weight: 700;
             color: #fff;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
             text-align: center;
             text-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
@@ -78,7 +84,7 @@
         .login-subtitle {
             font-size: 14px;
             color: rgba(255,255,255,0.8);
-            margin-bottom: 50px;
+            margin-bottom: 35px;
             text-align: center;
         }
 
@@ -88,7 +94,7 @@
             background: rgba(255,255,255,0.08);
             border: 1px solid rgba(255,255,255,0.15);
             border-radius: 16px;
-            padding: 30px;
+            padding: 25px;
             backdrop-filter: blur(20px);
         }
 
@@ -137,7 +143,7 @@
         }
 
         .login-btn:hover {
-            transform: translateY(-3px);
+            transform: translateY(-2px);
             box-shadow: 0 12px 30px rgba(255, 107, 157, 0.4);
         }
 
@@ -148,14 +154,13 @@
             height: 100%;
         }
 
-        .chat-screen.hidden {
-            display: none;
-        }
+        .chat-screen.hidden { display: none; }
 
         .chat-header {
-            background: linear-gradient(135deg, rgba(255,107,157,0.15), rgba(255,107,157,0.05));
+            background: rgba(255, 107, 157, 0.1);
+            backdrop-filter: blur(10px);
             border-bottom: 1px solid rgba(255,255,255,0.1);
-            padding: 14px 16px;
+            padding: 12px 16px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -165,18 +170,17 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            cursor: pointer;
         }
 
         .header-avatar {
-            width: 44px;
-            height: 44px;
+            width: 42px;
+            height: 42px;
             background: linear-gradient(135deg, #FF6B9D, #FF8AB3);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 22px;
+            font-size: 20px;
             box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3);
         }
 
@@ -189,8 +193,19 @@
 
         .header-info p {
             font-size: 11px;
-            color: #aaa;
+            color: #8E8E93;
             margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4CD964;
+            display: inline-block;
         }
 
         .header-actions {
@@ -199,81 +214,137 @@
         }
 
         .header-btn {
-            width: 36px;
-            height: 36px;
+            width: 34px;
+            height: 34px;
             border: none;
             background: rgba(255,255,255,0.08);
             border-radius: 50%;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 15px;
             transition: all 0.2s ease;
             display: flex;
             align-items: center;
             justify-content: center;
             border: 1px solid rgba(255,255,255,0.1);
+            color: #fff;
         }
 
         .header-btn:hover {
-            background: rgba(255,107,157,0.2);
-            border-color: rgba(255,107,157,0.3);
+            background: rgba(255,107,157,0.25);
+            border-color: rgba(255,107,157,0.4);
+            transform: scale(1.05);
+        }
+
+        /* Identity Switcher Bar */
+        .identity-bar {
+            background: rgba(0,0,0,0.3);
+            padding: 6px 16px;
+            font-size: 11px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .switch-identity-btn {
+            background: rgba(255, 107, 157, 0.2);
+            border: 1px solid rgba(255, 107, 157, 0.4);
+            color: #FF8AB3;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            cursor: pointer;
         }
 
         .messages-area {
             flex: 1;
             overflow-y: auto;
-            padding: 12px 16px;
+            padding: 14px 16px;
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            background: linear-gradient(135deg, rgba(26,0,51,0.8), rgba(45,27,78,0.8));
+            gap: 10px;
+            background: linear-gradient(135deg, rgba(26,0,51,0.9), rgba(45,27,78,0.9));
         }
 
         .message {
             display: flex;
-            margin-bottom: 4px;
-            animation: slideIn 0.3s ease;
+            flex-direction: column;
+            max-width: 80%;
+            animation: slideIn 0.25s ease;
         }
 
         @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .message.sent {
-            justify-content: flex-end;
+            align-self: flex-end;
+            align-items: flex-end;
+        }
+
+        .message.received {
+            align-self: flex-start;
+            align-items: flex-start;
+        }
+
+        .message-sender-name {
+            font-size: 10px;
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 3px;
+            padding: 0 4px;
         }
 
         .message-bubble {
-            max-width: 75%;
             padding: 10px 14px;
-            border-radius: 16px;
-            word-wrap: break-word;
+            border-radius: 18px;
+            word-break: break-word;
             font-size: 14px;
             line-height: 1.4;
+            position: relative;
         }
 
         .message.received .message-bubble {
-            background: rgba(255,255,255,0.08);
-            color: #e0e0e0;
-            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.1);
+            color: #f0f0f0;
+            border-bottom-left-radius: 4px;
+            border: 1px solid rgba(255,255,255,0.08);
         }
 
         .message.sent .message-bubble {
             background: linear-gradient(135deg, #FF6B9D, #FF8AB3);
             color: white;
-            box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3);
+            border-bottom-right-radius: 4px;
+            box-shadow: 0 4px 15px rgba(255, 107, 157, 0.25);
+        }
+
+        .message-time {
+            font-size: 9px;
+            color: rgba(255,255,255,0.6);
+            margin-top: 3px;
+            padding: 0 4px;
+        }
+
+        .map-card {
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+            padding: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+        }
+
+        .map-card a {
+            color: #FF8AB3;
+            text-decoration: none;
+            font-weight: bold;
+            display: block;
+            margin-top: 6px;
         }
 
         .input-area {
-            background: rgba(255,255,255,0.02);
+            background: rgba(20, 10, 35, 0.95);
             border-top: 1px solid rgba(255,255,255,0.1);
-            padding: 12px 16px;
+            padding: 10px 14px;
             display: flex;
             gap: 8px;
             align-items: flex-end;
@@ -296,32 +367,41 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 1px solid rgba(255,107,157,0.2);
+            border: 1px solid rgba(255,107,157,0.25);
+            color: #fff;
         }
 
         .action-btn:hover {
-            background: rgba(255,107,157,0.25);
-            border-color: rgba(255,107,157,0.4);
+            background: rgba(255,107,157,0.3);
+        }
+
+        .action-btn.recording {
+            background: #FF3B30 !important;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0.5; }
         }
 
         .input-field {
             flex: 1;
             padding: 10px 14px;
-            border: 1px solid rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.15);
             border-radius: 20px;
             font-size: 14px;
             resize: none;
-            max-height: 80px;
+            max-height: 90px;
             font-family: inherit;
-            background: rgba(255,255,255,0.05);
-            color: #e0e0e0;
+            background: rgba(255,255,255,0.06);
+            color: #fff;
             transition: all 0.2s ease;
         }
 
         .input-field:focus {
             outline: none;
             border-color: #FF6B9D;
-            background: rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.1);
         }
 
         .send-btn {
@@ -332,80 +412,72 @@
             color: white;
             border-radius: 50%;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 15px;
             transition: all 0.2s ease;
             display: flex;
             align-items: center;
             justify-content: center;
             box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3);
+            flex-shrink: 0;
         }
 
-        .send-btn:hover {
-            transform: scale(1.08);
-        }
+        .send-btn:hover { transform: scale(1.08); }
 
         /* Modals */
         .modal {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.75);
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
             z-index: 1000;
             align-items: center;
             justify-content: center;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(6px);
         }
 
-        .modal.active {
-            display: flex;
-        }
+        .modal.active { display: flex; }
 
         .modal-content {
-            background: linear-gradient(135deg, #1a0033, #2d1b4e);
+            background: linear-gradient(135deg, #1e0836, #2d1b4e);
             border-radius: 20px;
-            padding: 24px;
-            max-width: 90%;
-            max-height: 80vh;
+            padding: 22px;
+            width: 90%;
+            max-width: 420px;
+            max-height: 85vh;
             overflow-y: auto;
-            box-shadow: 0 25px 80px rgba(0,0,0,0.6);
-            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 25px 80px rgba(0,0,0,0.8);
+            border: 1px solid rgba(255,255,255,0.15);
             position: relative;
         }
 
         .modal-header {
-            font-size: 18px;
+            font-size: 17px;
             font-weight: 700;
             color: #fff;
-            margin-bottom: 18px;
+            margin-bottom: 16px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
         .modal-close {
             position: absolute;
-            top: 16px;
-            right: 16px;
+            top: 16px; right: 16px;
             background: rgba(255,255,255,0.1);
             border: none;
-            font-size: 24px;
+            font-size: 18px;
             cursor: pointer;
             color: #aaa;
-            width: 32px;
-            height: 32px;
+            width: 30px; height: 30px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.2s ease;
         }
 
         .modal-close:hover {
-            background: rgba(255,107,157,0.2);
-            color: #FF6B9D;
+            background: rgba(255,107,157,0.3);
+            color: #fff;
         }
 
         .btn {
@@ -413,14 +485,18 @@
             color: white;
             border: none;
             border-radius: 10px;
-            padding: 12px 18px;
-            font-size: 14px;
+            padding: 11px 16px;
+            font-size: 13px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
             width: 100%;
-            margin-bottom: 10px;
-            box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3);
+            margin-bottom: 8px;
+            box-shadow: 0 4px 15px rgba(255, 107, 157, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
         }
 
         .btn:hover {
@@ -432,27 +508,26 @@
             background: rgba(255,255,255,0.08);
             border: 1px solid rgba(255,255,255,0.15);
             color: #e0e0e0;
+            box-shadow: none;
         }
 
-        .btn-secondary:hover {
-            background: rgba(255,255,255,0.12);
-        }
+        .btn-secondary:hover { background: rgba(255,255,255,0.15); }
 
         .btn-danger {
-            background: linear-gradient(135deg, #FF6B6B, #FF8787);
+            background: linear-gradient(135deg, #FF3B30, #FF6B6B);
+            box-shadow: 0 4px 15px rgba(255, 59, 48, 0.3);
         }
 
         .input-text {
             width: 100%;
-            padding: 12px;
-            border: 1px solid rgba(255,255,255,0.1);
+            padding: 11px;
+            border: 1px solid rgba(255,255,255,0.12);
             border-radius: 10px;
-            font-size: 14px;
+            font-size: 13px;
             font-family: inherit;
             background: rgba(255,255,255,0.05);
-            color: #e0e0e0;
-            margin-bottom: 12px;
-            transition: all 0.2s ease;
+            color: #fff;
+            margin-bottom: 10px;
         }
 
         .input-text:focus {
@@ -462,57 +537,55 @@
         }
 
         .profile-section {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
             border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 12px;
+            padding: 14px;
+            margin-bottom: 10px;
         }
 
         .stat-item {
             text-align: center;
-            padding: 16px;
+            padding: 14px;
             background: rgba(255,255,255,0.05);
             border-radius: 12px;
-            margin-bottom: 10px;
-            border: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 8px;
+            border: 1px solid rgba(255,255,255,0.08);
         }
 
         .stat-label {
             font-size: 12px;
             color: #aaa;
-            margin-bottom: 8px;
-            font-weight: 600;
+            margin-bottom: 4px;
         }
 
         .stat-value {
-            font-size: 32px;
+            font-size: 28px;
             font-weight: 700;
             background: linear-gradient(135deg, #FF6B9D, #FF8AB3);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            background-clip: text;
         }
 
         .permission-card {
             background: rgba(255,255,255,0.05);
             border: 1px solid rgba(255,255,255,0.1);
             border-radius: 12px;
-            padding: 16px;
+            padding: 14px;
             margin-bottom: 12px;
         }
 
         .permission-title {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             color: #fff;
-            margin-bottom: 10px;
+            margin-bottom: 6px;
         }
 
         .permission-desc {
-            font-size: 12px;
+            font-size: 11px;
             color: #aaa;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
 
         .permission-buttons {
@@ -522,50 +595,43 @@
 
         .permission-buttons button {
             flex: 1;
-            padding: 8px 12px;
+            padding: 8px 10px;
             border: none;
             border-radius: 8px;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s ease;
         }
 
-        .btn-grant {
-            background: linear-gradient(135deg, #4CAF50, #66BB6A);
-            color: white;
-        }
-
-        .btn-deny {
-            background: rgba(255,255,255,0.08);
-            color: #e0e0e0;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
+        .btn-grant { background: #34C759; color: white; }
+        .btn-deny { background: rgba(255,255,255,0.1); color: #ccc; }
 
         .qr-container {
             text-align: center;
-            margin: 20px 0;
+            margin: 15px 0;
+            display: flex;
+            justify-content: center;
         }
 
         #qrCode {
+            padding: 12px;
+            background: #fff;
+            border-radius: 12px;
             display: inline-block;
-            padding: 10px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 10px;
         }
 
         .gift-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(3, 1fr);
             gap: 10px;
         }
 
         .gift-btn {
             aspect-ratio: 1;
-            font-size: 28px;
+            font-size: 32px;
             background: rgba(255,255,255,0.05);
             border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 12px;
+            border-radius: 14px;
             cursor: pointer;
             transition: all 0.2s ease;
             display: flex;
@@ -574,27 +640,27 @@
         }
 
         .gift-btn:hover {
-            background: rgba(255,107,157,0.15);
-            border-color: rgba(255,107,157,0.3);
-            transform: scale(1.05);
+            background: rgba(255,107,157,0.2);
+            border-color: rgba(255,107,157,0.4);
+            transform: scale(1.08);
         }
 
-        ::-webkit-scrollbar {
-            width: 6px;
+        /* Lightbox Image Preview */
+        .lightbox-modal {
+            display: none;
+            position: fixed;
+            top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
         }
+        .lightbox-modal.active { display: flex; }
+        .lightbox-modal img { max-width: 90%; max-height: 90%; border-radius: 8px; }
 
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: rgba(255,255,255,0.1);
-            border-radius: 3px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(255,255,255,0.15);
-        }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
     </style>
 </head>
 <body>
@@ -623,10 +689,10 @@
             <!-- Header -->
             <div class="chat-header">
                 <div class="header-left">
-                    <div class="header-avatar">💕</div>
+                    <div class="header-avatar" id="headerAvatar">💕</div>
                     <div class="header-info">
-                        <h2>ของเรา</h2>
-                        <p id="onlineStatus">Online</p>
+                        <h2 id="chatTitle">ของเรา</h2>
+                        <p><span class="status-dot"></span> <span id="onlineStatusText">Online</span></p>
                     </div>
                 </div>
                 <div class="header-actions">
@@ -638,6 +704,12 @@
                 </div>
             </div>
 
+            <!-- Identity Switcher for quick test/dual mode -->
+            <div class="identity-bar">
+                <span>กำลังพิมพ์ในฐานะ: <strong id="currentIdentityLabel" style="color:#FF8AB3;">เรา</strong></span>
+                <button class="switch-identity-btn" onclick="toggleIdentity()">🔄 สลับเป็น <span id="nextIdentityLabel">แฟน</span></button>
+            </div>
+
             <!-- Messages Area -->
             <div class="messages-area" id="messagesArea"></div>
 
@@ -646,7 +718,7 @@
                 <div class="input-actions">
                     <button class="action-btn" onclick="triggerImageInput()" title="รูปภาพ">🖼️</button>
                     <input type="file" id="imageInput" accept="image/*" style="display: none;" onchange="handleImageSelect()">
-                    <button class="action-btn" onclick="toggleVoice()" id="voiceBtn" title="เสียง">🎤</button>
+                    <button class="action-btn" onclick="toggleVoice()" id="voiceBtn" title="อัดเสียง">🎤</button>
                 </div>
                 <textarea 
                     class="input-field" 
@@ -659,14 +731,19 @@
         </div>
     </div>
 
+    <!-- Lightbox Modal -->
+    <div class="lightbox-modal" id="lightboxModal" onclick="closeLightbox()">
+        <img id="lightboxImg" src="" alt="Full size preview">
+    </div>
+
     <!-- Profile Modal -->
     <div class="modal" id="profileModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeProfile()">✕</button>
-            <div class="modal-header">👤 โปรไฟล์</div>
+            <div class="modal-header">👤 โปรไฟล์ความรัก</div>
             
             <div class="profile-section">
-                <label class="form-label">ชื่อของฉัน</label>
+                <label class="form-label">ชื่อของเรา</label>
                 <input type="text" id="myName" class="input-text" placeholder="ชื่อของคุณ">
             </div>
             <div class="profile-section">
@@ -675,13 +752,13 @@
             </div>
             <div class="profile-section">
                 <label class="form-label">สถานะ</label>
-                <select id="status" class="input-text" style="padding: 10px;">
-                    <option value="online">🟢 Online</option>
-                    <option value="busy">🔴 Busy</option>
-                    <option value="away">🟡 Away</option>
+                <select id="statusSelect" class="input-text" style="background:#2A1845;">
+                    <option value="Online 🟢">🟢 Online</option>
+                    <option value="Busy 🔴">🔴 Busy</option>
+                    <option value="Thinking of you 💭">💭 คิดถึงคุณอยู่</option>
                 </select>
             </div>
-            <button class="btn" onclick="saveProfile()">💾 บันทึก</button>
+            <button class="btn" onclick="saveProfile()">💾 บันทึกโปรไฟล์</button>
         </div>
     </div>
 
@@ -689,19 +766,23 @@
     <div class="modal" id="statsModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeStats()">✕</button>
-            <div class="modal-header">📊 สถิติความรัก</div>
+            <div class="modal-header">📊 สถิติความทรงจำ</div>
             
             <div class="stat-item">
-                <div class="stat-label">💬 ข้อความ</div>
+                <div class="stat-label">💬 ข้อความที่ส่งแล้ว</div>
                 <div class="stat-value" id="msgCount">0</div>
             </div>
             <div class="stat-item">
-                <div class="stat-label">🖼️ รูปภาพ</div>
+                <div class="stat-label">🖼️ รูปภาพที่แชร์</div>
                 <div class="stat-value" id="imgCount">0</div>
             </div>
             <div class="stat-item">
-                <div class="stat-label">🎤 เสียง</div>
+                <div class="stat-label">🎤 ข้อความเสียง</div>
                 <div class="stat-value" id="audioCount">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">💌 จดหมายความรู้สึก</div>
+                <div class="stat-value" id="letterCount">0</div>
             </div>
         </div>
     </div>
@@ -710,10 +791,11 @@
     <div class="modal" id="letterModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeLetter()">✕</button>
-            <div class="modal-header">💌 จดหมายรักษ์</div>
+            <div class="modal-header">💌 จดหมายถึงเธอ</div>
             
-            <textarea id="letterText" class="input-text" placeholder="เขียนจดหมายให้แฟน..." style="height: 150px; resize: vertical;"></textarea>
-            <button class="btn" onclick="saveLetter()">💾 บันทึก</button>
+            <textarea id="letterText" class="input-text" placeholder="เขียนความในใจที่อยากบอกแฟน..." style="height: 110px; resize: none;"></textarea>
+            <button class="btn" onclick="saveLetter()">📬 ส่งจดหมาย</button>
+            <hr style="border:0; border-top:1px solid rgba(255,255,255,0.1); margin:15px 0;">
             <div id="lettersContainer"></div>
         </div>
     </div>
@@ -722,15 +804,15 @@
     <div class="modal" id="giftsModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeGifts()">✕</button>
-            <div class="modal-header">🎁 ของขวัญพิเศษ</div>
+            <div class="modal-header">🎁 ส่งของขวัญให้กัน</div>
             
             <div class="gift-grid">
-                <button class="gift-btn" onclick="sendGift('💝', 'ของขวัญ')">💝</button>
-                <button class="gift-btn" onclick="sendGift('🎂', 'วันเกิด')">🎂</button>
-                <button class="gift-btn" onclick="sendGift('🎉', 'ฉลอง')">🎉</button>
-                <button class="gift-btn" onclick="sendGift('💐', 'ดอกไม้')">💐</button>
-                <button class="gift-btn" onclick="sendGift('🌹', 'กุหลาบ')">🌹</button>
-                <button class="gift-btn" onclick="sendGift('💍', 'แหวน')">💍</button>
+                <button class="gift-btn" onclick="sendGift('💝', 'หัวใจแทนความรัก')">💝</button>
+                <button class="gift-btn" onclick="sendGift('🎂', 'เค้กน่ารัก')">🎂</button>
+                <button class="gift-btn" onclick="sendGift('💐', 'ช่อดอกไม้หวานๆ')">💐</button>
+                <button class="gift-btn" onclick="sendGift('🌹', 'ดอกกุหลาบสด')">🌹</button>
+                <button class="gift-btn" onclick="sendGift('💍', 'แหวนแทนใจ')">💍</button>
+                <button class="gift-btn" onclick="sendGift('☕', 'กาแฟอุ่นๆ')">☕</button>
             </div>
         </div>
     </div>
@@ -739,53 +821,57 @@
     <div class="modal" id="permissionsModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closePermissions()">✕</button>
-            <div class="modal-header">🔐 สิทธิ์การเข้าถึง</div>
+            <div class="modal-header">🔐 สิทธิ์และตำแหน่ง</div>
             
-            <!-- Audio Permission -->
             <div class="permission-card">
-                <div class="permission-title">🎤 ฟังเสียงแฟน</div>
-                <div class="permission-desc">อนุญาตให้แฟนฟังเสียงของคุณแบบเรียลไทม์</div>
+                <div class="permission-title">🎤 สิทธิ์ไมโครโฟน</div>
+                <div class="permission-desc">เปิดใช้งานเพื่อส่งข้อความเสียงหาแฟนได้สะดวก</div>
                 <div class="permission-buttons">
-                    <button class="btn-grant" onclick="grantAudioPermission()">✅ อนุญาต</button>
-                    <button class="btn-deny" onclick="denyAudioPermission()">❌ ปฏิเสธ</button>
+                    <button class="btn-grant" onclick="requestMicAccess()">✅ เปิดไมค์</button>
                 </div>
-                <p style="font-size: 11px; color: #aaa; margin-top: 8px;" id="audioStatus">สถานะ: รอการตัดสินใจ</p>
             </div>
 
-            <!-- GPS Permission -->
             <div class="permission-card">
                 <div class="permission-title">📍 แชร์ตำแหน่ง GPS</div>
-                <div class="permission-desc">อนุญาตให้แฟนเห็นตำแหน่งของคุณ</div>
-                <div class="permission-buttons">
-                    <button class="btn-grant" onclick="grantGPSPermission()">✅ อนุญาต</button>
-                    <button class="btn-deny" onclick="denyGPSPermission()">❌ ปฏิเสธ</button>
-                </div>
-                <p style="font-size: 11px; color: #aaa; margin-top: 8px;" id="gpsStatus">สถานะ: รอการตัดสินใจ</p>
+                <div class="permission-desc">ส่งตำแหน่งปัจจุบันของคุณลงในช่องแชททันที</div>
+                <button class="btn" onclick="sendGPSLocation()" style="margin-top:5px;">📍 ส่งพิกัดGPSให้แฟน</button>
             </div>
-
-            <button class="btn" onclick="viewPartnerLocation()" style="margin-top: 10px;">📍 ดูตำแหน่งแฟน</button>
-            <button class="btn" onclick="listenPartnerAudio()" style="margin-top: 0;">🎤 ฟังเสียงแฟน</button>
         </div>
     </div>
 
-    <!-- QR Sync Modal -->
+    <!-- QR & Sync Modal -->
     <div class="modal" id="qrModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeQRSync()">✕</button>
-            <div class="modal-header">🔗 ซิงค์ข้อมูล QR Code</div>
+            <div class="modal-header">🔗 ซิงค์ข้อมูลข้ามเครื่อง</div>
             
-            <p style="color: #aaa; font-size: 13px; margin-bottom: 15px;">สแกน QR Code จากแฟนเพื่อซิงค์ข้อมูลทั้งหมด</p>
-            
-            <button class="btn" onclick="generateQR()" style="margin-bottom: 15px;">📱 สร้าง QR Code</button>
+            <p style="color: #aaa; font-size: 12px; margin-bottom: 12px; text-align:center;">
+                วิธีที่ง่ายที่สุด: กด <b>"คัดลอกรหัสซิงค์"</b> แล้วส่งให้อีกฝ่ายวางลงในช่องซิงค์
+            </p>
+
+            <button class="btn" onclick="copySyncCode()">📋 1. คัดลอกรหัสซิงค์ (Sync Code)</button>
+            <button class="btn btn-secondary" onclick="generateQR()">📱 2. สร้าง QR Code</button>
             
             <div class="qr-container">
                 <div id="qrCode"></div>
             </div>
             
-            <p style="color: #aaa; font-size: 13px; margin: 15px 0;">หรือใส่ QR Code ที่ได้รับ:</p>
-            <textarea id="qrInput" class="input-text" placeholder="วาง QR Code ที่นี่..." style="height: 80px;"></textarea>
-            <button class="btn" onclick="syncFromQR()">✅ ซิงค์</button>
-            <p id="syncStatus" style="color: #aaa; font-size: 12px; text-align: center; margin-top: 10px;"></p>
+            <div style="margin-top: 15px;">
+                <label class="form-label">วางรหัสซิงค์จากแฟนที่นี่:</label>
+                <textarea id="qrInput" class="input-text" placeholder="วางรหัสซิงค์เพื่อเชื่อมต่อ..." style="height: 65px;"></textarea>
+                <button class="btn" onclick="syncFromQR()">✅ ยืนยันซิงค์ข้อมูล</button>
+            </div>
+
+            <hr style="border:0; border-top:1px solid rgba(255,255,255,0.1); margin:15px 0;">
+
+            <p style="color: #aaa; font-size: 12px; margin-bottom: 8px;">สำรองข้อมูลฉบับเต็มเป็นไฟล์ (ถ้ารูปภาพเยอะ):</p>
+            <div style="display:flex; gap:8px;">
+                <button class="btn btn-secondary" onclick="exportDataFile()">📥 ส่งออกไฟล์</button>
+                <button class="btn btn-secondary" onclick="document.getElementById('importFileInput').click()">📤 นำเข้าไฟล์</button>
+                <input type="file" id="importFileInput" accept=".json" style="display:none;" onchange="importDataFile(event)">
+            </div>
+            
+            <p id="syncStatus" style="color: #FF8AB3; font-size: 12px; text-align: center; margin-top: 10px; font-weight:bold;"></p>
         </div>
     </div>
 
@@ -793,21 +879,34 @@
     <div class="modal" id="settingsModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeSettings()">✕</button>
-            <div class="modal-header">⚙️ ตั้งค่า</div>
+            <div class="modal-header">⚙️ ตั้งค่าความปลอดภัย</div>
             
-            <button class="btn" onclick="openPermissions()" style="margin-bottom: 10px;">🔐 สิทธิ์การเข้าถึง</button>
-            <button class="btn" onclick="openQRSync()" style="margin-bottom: 10px;">🔗 ซิงค์ QR Code</button>
-            <button class="btn btn-secondary" onclick="logout()" style="margin-bottom: 10px;">🚪 ออกจากระบบ</button>
-            <button class="btn btn-danger" onclick="clearData()">🗑️ ลบข้อมูล</button>
+            <button class="btn" onclick="openPermissions()" style="margin-bottom: 8px;">🔐 สิทธิ์การเข้าถึง & GPS</button>
+            <button class="btn" onclick="openQRSync()" style="margin-bottom: 8px;">🔗 ซิงค์ข้อมูล QR & Code</button>
+            <button class="btn btn-secondary" onclick="logout()" style="margin-bottom: 8px;">🚪 ออกจากระบบ</button>
+            <button class="btn btn-danger" onclick="clearData()">🗑️ ล้างข้อมูลทั้งหมด</button>
         </div>
     </div>
 
     <script>
-        const DB_KEY = 'coupleChat_';
+        const DB_KEY = 'coupleChat_v2_';
         let messages = [];
         let isRecording = false;
         let mediaRecorder = null;
         let audioChunks = [];
+        let currentIdentity = 'you'; // 'you' หรือ 'partner'
+        let recTimer = null;
+        let recSeconds = 0;
+
+        // Channel สำหรับ Broadcast ซิงค์ข้อมูลสดข้าม Tab/Window ในเครื่องเดียวกัน
+        const syncChannel = new BroadcastChannel('couple_chat_channel');
+
+        syncChannel.onmessage = (event) => {
+            if (event.data && event.data.type === 'SYNC_ALL') {
+                messages = event.data.messages || [];
+                renderMessages();
+            }
+        };
 
         function saveData(key, value) {
             localStorage.setItem(DB_KEY + key, JSON.stringify(value));
@@ -818,30 +917,33 @@
             return data ? JSON.parse(data) : defaultValue;
         }
 
+        function saveAndBroadcast() {
+            saveData('messages', messages);
+            syncChannel.postMessage({ type: 'SYNC_ALL', messages: messages });
+        }
+
         function init() {
             const pin = localStorage.getItem(DB_KEY + 'pin');
             messages = getData('messages', []);
             
             if (pin) {
                 showChat();
+                updateProfileUI();
                 renderMessages();
             } else {
                 showLogin();
             }
-
-            setInterval(() => {
-                saveData('messages', messages);
-            }, 5000);
         }
 
         function handleLogin() {
-            const pin = document.getElementById('pinInput').value;
+            const pin = document.getElementById('pinInput').value.trim();
             if (pin.length < 4) {
-                alert('PIN ต้องมีอย่างน้อย 4 หลัก');
+                alert('PIN ต้องมีความยาวอย่างน้อย 4 หลัก');
                 return;
             }
             localStorage.setItem(DB_KEY + 'pin', pin);
             showChat();
+            updateProfileUI();
             renderMessages();
         }
 
@@ -855,24 +957,67 @@
             document.getElementById('chatScreen').classList.remove('hidden');
         }
 
+        function toggleIdentity() {
+            currentIdentity = currentIdentity === 'you' ? 'partner' : 'you';
+            updateProfileUI();
+        }
+
+        function updateProfileUI() {
+            const myName = localStorage.getItem(DB_KEY + 'myName') || 'เรา';
+            const partnerName = localStorage.getItem(DB_KEY + 'partnerName') || 'แฟน';
+            const status = localStorage.getItem(DB_KEY + 'status') || 'Online 🟢';
+
+            document.getElementById('onlineStatusText').textContent = status;
+
+            if (currentIdentity === 'you') {
+                document.getElementById('currentIdentityLabel').textContent = myName;
+                document.getElementById('nextIdentityLabel').textContent = partnerName;
+                document.getElementById('chatTitle').textContent = `คุยกับ ${partnerName}`;
+            } else {
+                document.getElementById('currentIdentityLabel').textContent = partnerName;
+                document.getElementById('nextIdentityLabel').textContent = myName;
+                document.getElementById('chatTitle').textContent = `คุยกับ ${myName}`;
+            }
+        }
+
+        function playSound() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+                gain.gain.setValueAtTime(0.05, ctx.currentTime);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.15);
+            } catch(e) {}
+        }
+
         function sendMessage() {
             const input = document.getElementById('messageInput');
             const text = input.value.trim();
             
             if (!text) return;
 
+            const myName = localStorage.getItem(DB_KEY + 'myName') || 'เรา';
+            const partnerName = localStorage.getItem(DB_KEY + 'partnerName') || 'แฟน';
+
             const msg = {
                 id: Date.now(),
                 text: text,
-                sender: 'you',
+                sender: currentIdentity,
+                senderName: currentIdentity === 'you' ? myName : partnerName,
                 time: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
             };
 
             messages.push(msg);
-            saveData('messages', messages);
+            saveAndBroadcast();
             input.value = '';
             input.style.height = 'auto';
             renderMessages();
+            playSound();
         }
 
         function renderMessages() {
@@ -880,19 +1025,31 @@
             area.innerHTML = '';
 
             messages.forEach(msg => {
+                const isMe = msg.sender === currentIdentity;
                 const div = document.createElement('div');
-                div.className = `message ${msg.sender === 'you' ? 'sent' : 'received'}`;
+                div.className = `message ${isMe ? 'sent' : 'received'}`;
                 
-                let content = '';
+                let contentHTML = '';
                 if (msg.text) {
-                    content = `<div class="message-bubble">${escapeHtml(msg.text)}</div>`;
+                    contentHTML = `<div class="message-bubble">${escapeHtml(msg.text)}</div>`;
                 } else if (msg.image) {
-                    content = `<div class="message-bubble"><img src="${msg.image}" style="max-width: 100%; border-radius: 12px;"></div>`;
+                    contentHTML = `<div class="message-bubble" style="padding:4px;"><img src="${msg.image}" style="max-width:200px; border-radius:12px; cursor:pointer;" onclick="openLightbox('${msg.image}')"></div>`;
                 } else if (msg.audio) {
-                    content = `<div class="message-bubble"><audio controls style="width: 100%; max-width: 200px;"><source src="${msg.audio}" type="audio/webm"></audio></div>`;
+                    contentHTML = `<div class="message-bubble" style="padding:6px;"><audio controls style="max-width: 200px; height: 36px;"><source src="${msg.audio}" type="audio/webm"></audio></div>`;
+                } else if (msg.location) {
+                    contentHTML = `
+                        <div class="message-bubble map-card">
+                            📍 <b>พิกัดตำแหน่ง</b>
+                            <a href="https://www.google.com/maps?q=${msg.location.lat},${msg.location.lng}" target="_blank">🗺️ เปิด Google Maps</a>
+                        </div>
+                    `;
                 }
                 
-                div.innerHTML = content;
+                div.innerHTML = `
+                    <span class="message-sender-name">${msg.senderName || (msg.sender === 'you' ? 'เรา' : 'แฟน')}</span>
+                    ${contentHTML}
+                    <span class="message-time">${msg.time}</span>
+                `;
                 area.appendChild(div);
             });
 
@@ -902,16 +1059,20 @@
         function handleImageSelect() {
             const file = document.getElementById('imageInput').files[0];
             if (file) {
+                const myName = localStorage.getItem(DB_KEY + 'myName') || 'เรา';
+                const partnerName = localStorage.getItem(DB_KEY + 'partnerName') || 'แฟน';
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     messages.push({
                         id: Date.now(),
                         image: e.target.result,
-                        sender: 'you',
+                        sender: currentIdentity,
+                        senderName: currentIdentity === 'you' ? myName : partnerName,
                         time: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
                     });
-                    saveData('messages', messages);
+                    saveAndBroadcast();
                     renderMessages();
+                    playSound();
                 };
                 reader.readAsDataURL(file);
             }
@@ -930,18 +1091,24 @@
         }
 
         function startVoice() {
-            isRecording = true;
-            audioChunks = [];
-            document.getElementById('voiceBtn').style.background = '#FF6B6B';
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                alert('เบราว์เซอร์นี้ไม่อนุญาตให้ใช้อัดเสียง');
+                return;
+            }
 
+            audioChunks = [];
             navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
                 mediaRecorder = new MediaRecorder(stream);
                 mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
                 mediaRecorder.start();
-            }).catch(() => {
-                alert('ไม่สามารถเข้าถึงไมค์');
-                isRecording = false;
-                document.getElementById('voiceBtn').style.background = '';
+                
+                isRecording = true;
+                const btn = document.getElementById('voiceBtn');
+                btn.classList.add('recording');
+                recSeconds = 0;
+                btn.innerText = '🔴';
+            }).catch(err => {
+                alert('ไม่สามารถเข้าถึงไมโครโฟนได้');
             });
         }
 
@@ -950,29 +1117,46 @@
 
             mediaRecorder.onstop = () => {
                 const blob = new Blob(audioChunks, { type: 'audio/webm' });
-                const url = URL.createObjectURL(blob);
-
-                messages.push({
-                    id: Date.now(),
-                    audio: url,
-                    sender: 'you',
-                    time: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
-                });
-                saveData('messages', messages);
-                renderMessages();
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    const myName = localStorage.getItem(DB_KEY + 'myName') || 'เรา';
+                    const partnerName = localStorage.getItem(DB_KEY + 'partnerName') || 'แฟน';
+                    messages.push({
+                        id: Date.now(),
+                        audio: reader.result,
+                        sender: currentIdentity,
+                        senderName: currentIdentity === 'you' ? myName : partnerName,
+                        time: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
+                    });
+                    saveAndBroadcast();
+                    renderMessages();
+                    playSound();
+                };
+                reader.readAsDataURL(blob);
             };
 
             mediaRecorder.stop();
             mediaRecorder.stream.getTracks().forEach(track => track.stop());
             isRecording = false;
-            document.getElementById('voiceBtn').style.background = '';
+            const btn = document.getElementById('voiceBtn');
+            btn.classList.remove('recording');
+            btn.innerText = '🎤';
+        }
+
+        function openLightbox(src) {
+            document.getElementById('lightboxImg').src = src;
+            document.getElementById('lightboxModal').classList.add('active');
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightboxModal').classList.remove('active');
         }
 
         // Profile
         function openProfile() {
             document.getElementById('myName').value = localStorage.getItem(DB_KEY + 'myName') || '';
             document.getElementById('partnerName').value = localStorage.getItem(DB_KEY + 'partnerName') || '';
-            document.getElementById('status').value = localStorage.getItem(DB_KEY + 'status') || 'online';
+            document.getElementById('statusSelect').value = localStorage.getItem(DB_KEY + 'status') || 'Online 🟢';
             document.getElementById('profileModal').classList.add('active');
         }
 
@@ -981,15 +1165,16 @@
         }
 
         function saveProfile() {
-            const myName = document.getElementById('myName').value;
-            const partnerName = document.getElementById('partnerName').value;
-            const status = document.getElementById('status').value;
+            const myName = document.getElementById('myName').value.trim();
+            const partnerName = document.getElementById('partnerName').value.trim();
+            const status = document.getElementById('statusSelect').value;
 
-            localStorage.setItem(DB_KEY + 'myName', myName);
-            localStorage.setItem(DB_KEY + 'partnerName', partnerName);
+            if (myName) localStorage.setItem(DB_KEY + 'myName', myName);
+            if (partnerName) localStorage.setItem(DB_KEY + 'partnerName', partnerName);
             localStorage.setItem(DB_KEY + 'status', status);
 
-            alert('✅ บันทึกโปรไฟล์เรียบร้อย');
+            updateProfileUI();
+            alert('✅ บันทึกโปรไฟล์เรียบร้อยแล้ว');
             closeProfile();
         }
 
@@ -998,10 +1183,12 @@
             const textCount = messages.filter(m => m.text).length;
             const imageCount = messages.filter(m => m.image).length;
             const audioCount = messages.filter(m => m.audio).length;
+            const letters = getData('letters', []).length;
 
             document.getElementById('msgCount').textContent = textCount;
             document.getElementById('imgCount').textContent = imageCount;
             document.getElementById('audioCount').textContent = audioCount;
+            document.getElementById('letterCount').textContent = letters;
             document.getElementById('statsModal').classList.add('active');
         }
 
@@ -1022,7 +1209,7 @@
         function saveLetter() {
             const text = document.getElementById('letterText').value.trim();
             if (!text) {
-                alert('กรุณาเขียนจดหมาย');
+                alert('กรุณาพิมพ์ข้อความจดหมาย');
                 return;
             }
 
@@ -1030,12 +1217,13 @@
             letters.push({
                 id: Date.now(),
                 text: text,
-                date: new Date().toLocaleDateString('th-TH')
+                author: currentIdentity === 'you' ? (localStorage.getItem(DB_KEY + 'myName') || 'เรา') : (localStorage.getItem(DB_KEY + 'partnerName') || 'แฟน'),
+                date: new Date().toLocaleDateString('th-TH', { day:'numeric', month:'short', year:'numeric' })
             });
             saveData('letters', letters);
             document.getElementById('letterText').value = '';
             renderLetters();
-            alert('✅ บันทึกจดหมาย');
+            alert('📬 บันทึกจดหมายเรียบร้อยแล้ว');
         }
 
         function renderLetters() {
@@ -1044,15 +1232,18 @@
             container.innerHTML = '';
 
             if (letters.length === 0) {
-                container.innerHTML = '<p style="color: #aaa; text-align: center; font-size: 12px;">ยังไม่มีจดหมาย</p>';
+                container.innerHTML = '<p style="color: #aaa; text-align: center; font-size: 12px;">ยังไม่มีจดหมายบันทึกไว้</p>';
                 return;
             }
 
-            letters.reverse().forEach(letter => {
+            letters.slice().reverse().forEach(letter => {
                 const div = document.createElement('div');
                 div.className = 'profile-section';
                 div.innerHTML = `
-                    <p style="color: #aaa; font-size: 11px; margin-bottom: 8px;">${letter.date}</p>
+                    <div style="display:flex; justify-content:space-between; margin-bottom: 6px;">
+                        <span style="color:#FF8AB3; font-weight:bold; font-size:12px;">✍️ ${escapeHtml(letter.author)}</span>
+                        <span style="color: #aaa; font-size: 10px;">${letter.date}</span>
+                    </div>
                     <p style="color: #e0e0e0; line-height: 1.5; font-size: 13px;">${escapeHtml(letter.text)}</p>
                 `;
                 container.appendChild(div);
@@ -1069,13 +1260,16 @@
         }
 
         function sendGift(emoji, name) {
+            const myName = localStorage.getItem(DB_KEY + 'myName') || 'เรา';
+            const partnerName = localStorage.getItem(DB_KEY + 'partnerName') || 'แฟน';
             messages.push({
                 id: Date.now(),
-                text: `🎁 ส่ง${name}ให้แฟน ${emoji}`,
-                sender: 'you',
+                text: `🎁 มอบขวัญสุดพิเศษ: ${name} ${emoji}`,
+                sender: currentIdentity,
+                senderName: currentIdentity === 'you' ? myName : partnerName,
                 time: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
             });
-            saveData('messages', messages);
+            saveAndBroadcast();
             renderMessages();
             closeGifts();
             showConfetti();
@@ -1086,19 +1280,18 @@
             confetti.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999;';
             document.body.appendChild(confetti);
 
-            for (let i = 0; i < 50; i++) {
+            for (let i = 0; i < 40; i++) {
                 const p = document.createElement('div');
-                p.style.cssText = `position: absolute; left: ${Math.random() * 100}%; top: -10px; font-size: 20px; animation: fall 3s linear forwards; opacity: 1;`;
-                p.textContent = ['🎉', '💝', '✨', '💕', '🎊'][Math.floor(Math.random() * 5)];
+                p.style.cssText = `position: absolute; left: ${Math.random() * 100}%; top: -20px; font-size: 24px; animation: fall 2.5s linear forwards;`;
+                p.textContent = ['🎉', '💝', '✨', '💕', '🌹'][Math.floor(Math.random() * 5)];
                 confetti.appendChild(p);
             }
 
-            setTimeout(() => confetti.remove(), 3000);
+            setTimeout(() => confetti.remove(), 2500);
         }
 
-        // Permissions
+        // Permissions & GPS
         function openPermissions() {
-            updatePermissionStatus();
             document.getElementById('permissionsModal').classList.add('active');
         }
 
@@ -1106,64 +1299,43 @@
             document.getElementById('permissionsModal').classList.remove('active');
         }
 
-        function updatePermissionStatus() {
-            const audioStatus = localStorage.getItem(DB_KEY + 'audioPermission');
-            const gpsStatus = localStorage.getItem(DB_KEY + 'gpsPermission');
-
-            document.getElementById('audioStatus').textContent = audioStatus === 'true' ? '✅ อนุญาตแล้ว' : audioStatus === 'false' ? '❌ ปฏิเสธแล้ว' : '⏳ รอการตัดสินใจ';
-            document.getElementById('gpsStatus').textContent = gpsStatus === 'true' ? '✅ อนุญาตแล้ว' : gpsStatus === 'false' ? '❌ ปฏิเสธแล้ว' : '⏳ รอการตัดสินใจ';
+        function requestMicAccess() {
+            navigator.mediaDevices.getUserMedia({ audio: true }).then(() => {
+                alert('✅ ได้รับอนุญาตใช้งานไมโครโฟนเรียบร้อยแล้ว');
+            }).catch(() => {
+                alert('❌ ไม่ได้รับอนุญาตใช้งานไมโครโฟน');
+            });
         }
 
-        function grantAudioPermission() {
-            localStorage.setItem(DB_KEY + 'audioPermission', 'true');
-            updatePermissionStatus();
-            alert('✅ อนุญาตให้แฟนฟังเสียงแล้ว');
-        }
-
-        function denyAudioPermission() {
-            localStorage.setItem(DB_KEY + 'audioPermission', 'false');
-            updatePermissionStatus();
-            alert('❌ ปฏิเสธการฟังเสียง');
-        }
-
-        function grantGPSPermission() {
-            localStorage.setItem(DB_KEY + 'gpsPermission', 'true');
-            updatePermissionStatus();
-            alert('✅ อนุญาต GPS แล้ว');
-        }
-
-        function denyGPSPermission() {
-            localStorage.setItem(DB_KEY + 'gpsPermission', 'false');
-            updatePermissionStatus();
-            alert('❌ ปฏิเสธ GPS');
-        }
-
-        function listenPartnerAudio() {
-            const allowed = localStorage.getItem(DB_KEY + 'audioPermission') === 'true';
-            if (!allowed) {
-                alert('❌ แฟนไม่ได้อนุญาตให้ฟังเสียง');
+        function sendGPSLocation() {
+            if (!navigator.geolocation) {
+                alert('เบราว์เซอร์ของคุณไม่รองรับการแชร์ GPS');
                 return;
             }
-            alert('🎤 ฟังเสียงแฟนแบบเรียลไทม์ (ฟีเจอร์นี้ต้องใช้ WebRTC)');
-        }
 
-        function viewPartnerLocation() {
-            const allowed = localStorage.getItem(DB_KEY + 'gpsPermission') === 'true';
-            if (!allowed) {
-                alert('❌ แฟนไม่ได้อนุญาต GPS');
-                return;
-            }
-            
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(pos => {
-                    const lat = pos.coords.latitude;
-                    const lng = pos.coords.longitude;
-                    alert(`📍 ตำแหน่งของคุณ\nLat: ${lat.toFixed(4)}\nLng: ${lng.toFixed(4)}`);
+            navigator.geolocation.getCurrentPosition(pos => {
+                const lat = pos.coords.latitude;
+                const lng = pos.coords.longitude;
+                const myName = localStorage.getItem(DB_KEY + 'myName') || 'เรา';
+                const partnerName = localStorage.getItem(DB_KEY + 'partnerName') || 'แฟน';
+
+                messages.push({
+                    id: Date.now(),
+                    location: { lat, lng },
+                    sender: currentIdentity,
+                    senderName: currentIdentity === 'you' ? myName : partnerName,
+                    time: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
                 });
-            }
+                saveAndBroadcast();
+                renderMessages();
+                closePermissions();
+                alert('✅ ส่งตำแหน่งพิกัด GPS เรียบร้อยแล้ว');
+            }, () => {
+                alert('ไม่สามารถดึงตำแหน่ง GPS ได้');
+            });
         }
 
-        // QR Sync
+        // QR Sync & Backup
         function openQRSync() {
             document.getElementById('qrModal').classList.add('active');
         }
@@ -1172,57 +1344,132 @@
             document.getElementById('qrModal').classList.remove('active');
         }
 
+        function getSyncPayload() {
+            // ส่งเฉพาะข้อความและพิกัดเพื่อไม่ให้ String ยาวเกินไปจนสร้าง QR ไม่ได้
+            const textOnlyMessages = messages.map(m => ({
+                id: m.id,
+                text: m.text,
+                sender: m.sender,
+                senderName: m.senderName,
+                time: m.time,
+                location: m.location
+            }));
+
+            return {
+                pin: localStorage.getItem(DB_KEY + 'pin'),
+                myName: localStorage.getItem(DB_KEY + 'myName'),
+                partnerName: localStorage.getItem(DB_KEY + 'partnerName'),
+                messages: textOnlyMessages,
+                letters: getData('letters', [])
+            };
+        }
+
+        function copySyncCode() {
+            const payload = getSyncPayload();
+            const syncCode = 'COUPLE_CHAT:' + btoa(encodeURIComponent(JSON.stringify(payload)));
+            navigator.clipboard.writeText(syncCode).then(() => {
+                document.getElementById('syncStatus').textContent = '📋 คัดลอกรหัสซิงค์แล้ว! ส่งให้แฟนวางเพื่อเชื่อมต่อได้เลย';
+            });
+        }
+
         function generateQR() {
             const qrContainer = document.getElementById('qrCode');
             qrContainer.innerHTML = '';
 
-            const syncData = {
-                pin: localStorage.getItem(DB_KEY + 'pin'),
-                messages: messages
-            };
+            const payload = getSyncPayload();
+            const syncCode = 'COUPLE_CHAT:' + btoa(encodeURIComponent(JSON.stringify(payload)));
 
-            const syncCode = btoa(JSON.stringify(syncData));
-            const qrText = 'COUPLE_CHAT:' + syncCode;
+            if (syncCode.length > 2000) {
+                alert('ข้อความเยอะเกินกว่าจะสร้าง QR Code กรุณาใช้ปุ่ม "คัดลอกรหัสซิงค์" แทนครับ');
+                return;
+            }
 
             new QRCode(qrContainer, {
-                text: qrText,
-                width: 150,
-                height: 150,
-                colorDark: '#FF6B9D',
-                colorLight: '#1a0033',
-                correctLevel: QRCode.CorrectLevel.H
+                text: syncCode,
+                width: 140,
+                height: 140,
+                colorDark: '#1a0033',
+                colorLight: '#ffffff'
             });
+            document.getElementById('syncStatus').textContent = '📱 ให้แฟนสแกน QR หรือคัดลอก Code';
         }
 
         function syncFromQR() {
             const input = document.getElementById('qrInput').value.trim();
-            
+            const statusEl = document.getElementById('syncStatus');
+
             if (!input.startsWith('COUPLE_CHAT:')) {
-                document.getElementById('syncStatus').textContent = '❌ QR Code ไม่ถูกต้อง';
+                statusEl.textContent = '❌ รูปแบบรหัสซิงค์ไม่ถูกต้อง';
                 return;
             }
 
             try {
-                const syncCode = input.replace('COUPLE_CHAT:', '');
-                const syncData = JSON.parse(atob(syncCode));
+                const rawBase64 = input.replace('COUPLE_CHAT:', '');
+                const jsonStr = decodeURIComponent(atob(rawBase64));
+                const syncData = JSON.parse(jsonStr);
 
-                const currentPin = localStorage.getItem(DB_KEY + 'pin');
-                if (syncData.pin !== currentPin) {
-                    document.getElementById('syncStatus').textContent = '❌ PIN ไม่ตรงกัน';
-                    return;
+                if (syncData.messages) {
+                    messages = syncData.messages;
+                    saveAndBroadcast();
                 }
 
-                messages = syncData.messages || [];
-                saveData('messages', messages);
+                if (syncData.letters) {
+                    saveData('letters', syncData.letters);
+                }
+
+                if (syncData.myName) localStorage.setItem(DB_KEY + 'partnerName', syncData.myName);
+                if (syncData.partnerName) localStorage.setItem(DB_KEY + 'myName', syncData.partnerName);
+
                 renderMessages();
-                document.getElementById('syncStatus').textContent = '✅ ซิงค์สำเร็จ!';
+                updateProfileUI();
+                statusEl.textContent = '✅ ซิงค์ข้อมูลสำเร็จเรียบร้อย!';
                 
                 setTimeout(() => {
                     closeQRSync();
-                }, 2000);
+                    statusEl.textContent = '';
+                }, 1800);
             } catch (err) {
-                document.getElementById('syncStatus').textContent = '❌ เกิดข้อผิดพลาด';
+                statusEl.textContent = '❌ รหัสซิงค์ไม่ถูกต้องหรือชำรุด';
             }
+        }
+
+        function exportDataFile() {
+            const fullData = {
+                pin: localStorage.getItem(DB_KEY + 'pin'),
+                myName: localStorage.getItem(DB_KEY + 'myName'),
+                partnerName: localStorage.getItem(DB_KEY + 'partnerName'),
+                messages: messages,
+                letters: getData('letters', [])
+            };
+
+            const blob = new Blob([JSON.stringify(fullData, null, 2)], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `couple_chat_backup_${Date.now()}.json`;
+            a.click();
+        }
+
+        function importDataFile(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    const data = JSON.parse(event.target.result);
+                    if (data.messages) {
+                        messages = data.messages;
+                        saveAndBroadcast();
+                    }
+                    if (data.letters) saveData('letters', data.letters);
+                    renderMessages();
+                    alert('✅ นำเข้าข้อมูลสำเร็จแล้ว');
+                    closeQRSync();
+                } catch(err) {
+                    alert('❌ ไฟล์ไม่ถูกต้อง');
+                }
+            };
+            reader.readAsText(file);
         }
 
         // Settings
@@ -1235,7 +1482,7 @@
         }
 
         function logout() {
-            if (confirm('ออกจากระบบ?')) {
+            if (confirm('คุณต้องการออกจากระบบหรือไม่?')) {
                 localStorage.removeItem(DB_KEY + 'pin');
                 showLogin();
                 document.getElementById('pinInput').value = '';
@@ -1244,16 +1491,18 @@
         }
 
         function clearData() {
-            if (confirm('⚠️ ลบข้อมูลทั้งหมด?')) {
+            if (confirm('⚠️ ต้องการลบข้อมูลทั้งหมดในเครื่องจริงหรือไม่?')) {
                 Object.keys(localStorage).forEach(key => {
                     if (key.startsWith(DB_KEY)) {
                         localStorage.removeItem(key);
                     }
                 });
                 messages = [];
+                saveAndBroadcast();
                 renderMessages();
-                alert('✅ ลบเรียบร้อย');
+                alert('✅ ลบข้อมูลทั้งหมดเรียบร้อยแล้ว');
                 closeSettings();
+                showLogin();
             }
         }
 
@@ -1280,7 +1529,7 @@
         if (textarea) {
             textarea.addEventListener('input', () => {
                 textarea.style.height = 'auto';
-                textarea.style.height = Math.min(textarea.scrollHeight, 80) + 'px';
+                textarea.style.height = Math.min(textarea.scrollHeight, 90) + 'px';
             });
         }
 
@@ -1288,7 +1537,7 @@
         style.textContent = `
             @keyframes fall {
                 to {
-                    top: 100%;
+                    top: 100vh;
                     opacity: 0;
                     transform: rotate(360deg);
                 }
