@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>💕 ของเรา - Couple Chat</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -13,8 +12,8 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
-            background: linear-gradient(135deg, #FDF6F3 0%, #FFF9F7 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -27,22 +26,22 @@
             max-width: 500px;
             height: 100vh;
             max-height: 800px;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            background: #1a1a2e;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            color: #e0e0e0;
         }
 
-        /* Login Screen */
         .login-screen {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 40px 20px;
-            background: linear-gradient(135deg, #FDF6F3 0%, #FFF9F7 100%);
+            background: linear-gradient(135deg, #0f0c29, #302b63);
             min-height: 100%;
         }
 
@@ -65,14 +64,14 @@
         .login-title {
             font-size: 32px;
             font-weight: bold;
-            color: #2C3E50;
+            color: #fff;
             margin-bottom: 10px;
             text-align: center;
         }
 
         .login-subtitle {
             font-size: 14px;
-            color: #999;
+            color: #aaa;
             margin-bottom: 40px;
             text-align: center;
         }
@@ -80,21 +79,16 @@
         .login-form {
             width: 100%;
             max-width: 300px;
-            background: #FFF9F7;
-            border: 1px solid #F0E8E5;
-            border-radius: 15px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
             padding: 25px;
-            space-y: 15px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
         }
 
         .form-label {
             font-size: 13px;
             font-weight: 600;
-            color: #2C3E50;
+            color: #fff;
             display: block;
             margin-bottom: 8px;
         }
@@ -102,56 +96,42 @@
         .form-input {
             width: 100%;
             padding: 12px;
-            border: 1px solid #F0E8E5;
-            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
             font-size: 16px;
             text-align: center;
             letter-spacing: 2px;
             font-weight: bold;
-            background: white;
+            background: rgba(255,255,255,0.05);
+            color: #fff;
             transition: all 0.3s ease;
+            margin-bottom: 15px;
         }
 
         .form-input:focus {
             outline: none;
             border-color: #FF6B6B;
-            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+            background: rgba(255,107,107,0.1);
         }
 
         .login-btn {
             width: 100%;
             padding: 12px;
-            background: #FF6B6B;
+            background: linear-gradient(135deg, #FF6B6B, #FF8787);
             color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 8px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-top: 10px;
         }
 
-        .login-btn:hover:not(:disabled) {
-            background: #FF5555;
+        .login-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
         }
 
-        .login-btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
-
-        .login-info {
-            font-size: 12px;
-            color: #999;
-            text-align: center;
-            margin-top: 30px;
-            line-height: 1.6;
-        }
-
-        /* Chat Screen */
         .chat-screen {
             display: flex;
             flex-direction: column;
@@ -162,27 +142,26 @@
             display: none;
         }
 
-        /* Header */
         .chat-header {
-            background: linear-gradient(135deg, #FFF9F7 0%, #FFE8E8 100%);
-            border-bottom: 1px solid #F0E8E5;
-            padding: 15px 20px;
+            background: linear-gradient(135deg, rgba(255,107,107,0.1), rgba(255,107,107,0.05));
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding: 12px 16px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
 
         .header-left {
             display: flex;
             align-items: center;
             gap: 10px;
+            cursor: pointer;
         }
 
         .header-avatar {
             width: 40px;
             height: 40px;
-            background: rgba(255, 107, 107, 0.2);
+            background: linear-gradient(135deg, #FF6B6B, #FF8787);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -191,71 +170,54 @@
         }
 
         .header-info h2 {
-            font-size: 16px;
-            color: #2C3E50;
+            font-size: 15px;
+            color: #fff;
             margin: 0;
         }
 
         .header-info p {
-            font-size: 12px;
-            color: #999;
+            font-size: 11px;
+            color: #aaa;
             margin: 0;
-        }
-
-        .online-badge {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            background: #4CAF50;
-            border-radius: 50%;
-            margin-right: 5px;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
         }
 
         .header-actions {
             display: flex;
-            gap: 10px;
+            gap: 8px;
         }
 
         .header-btn {
-            width: 36px;
-            height: 36px;
+            width: 32px;
+            height: 32px;
             border: none;
-            background: rgba(255, 107, 107, 0.1);
+            background: rgba(255,255,255,0.1);
             border-radius: 50%;
             cursor: pointer;
-            font-size: 18px;
-            transition: all 0.3s ease;
+            font-size: 16px;
+            transition: all 0.2s ease;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
         .header-btn:hover {
-            background: rgba(255, 107, 107, 0.2);
-            transform: scale(1.1);
+            background: rgba(255,107,107,0.2);
         }
 
-        /* Messages Area */
         .messages-area {
             flex: 1;
             overflow-y: auto;
-            padding: 15px 20px;
+            padding: 12px 16px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            background: linear-gradient(to bottom, #FFFFFF 0%, #FDF6F3 100%);
+            gap: 6px;
+            background: #1a1a2e;
         }
 
         .message {
             display: flex;
-            margin-bottom: 8px;
-            animation: slideIn 0.3s ease;
+            margin-bottom: 4px;
+            animation: slideIn 0.2s ease;
         }
 
         @keyframes slideIn {
@@ -275,145 +237,94 @@
 
         .message-bubble {
             max-width: 70%;
-            padding: 12px 16px;
-            border-radius: 18px;
+            padding: 8px 12px;
+            border-radius: 12px;
             word-wrap: break-word;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
+            font-size: 14px;
+            line-height: 1.3;
         }
 
         .message.received .message-bubble {
-            background: #F0E8E5;
-            color: #2C3E50;
-            border-bottom-left-radius: 4px;
+            background: rgba(255,255,255,0.1);
+            color: #e0e0e0;
         }
 
         .message.sent .message-bubble {
-            background: #FF6B6B;
+            background: linear-gradient(135deg, #FF6B6B, #FF8787);
             color: white;
-            border-bottom-right-radius: 4px;
         }
 
-        .message-image {
-            max-width: 100%;
-            border-radius: 12px;
-            margin-top: 5px;
-        }
-
-        .message-time {
-            font-size: 11px;
-            opacity: 0.7;
-            margin-top: 3px;
-        }
-
-        .message-actions {
+        .input-area {
+            background: rgba(255,255,255,0.02);
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding: 12px 16px;
             display: flex;
-            gap: 5px;
-            margin-top: 5px;
+            gap: 8px;
+            align-items: flex-end;
         }
 
-        .message-action-btn {
-            width: 24px;
-            height: 24px;
+        .input-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .action-btn {
+            width: 32px;
+            height: 32px;
             border: none;
-            background: rgba(255,255,255,0.3);
-            border-radius: 4px;
+            background: rgba(255,107,107,0.2);
+            border-radius: 50%;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 16px;
             transition: all 0.2s ease;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
-        .message-action-btn:hover {
-            background: rgba(255,255,255,0.5);
-            transform: scale(1.1);
-        }
-
-        /* Input Area */
-        .input-area {
-            background: white;
-            border-top: 1px solid #F0E8E5;
-            padding: 15px 20px;
-            display: flex;
-            gap: 10px;
-            align-items: flex-end;
-        }
-
-        .input-actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        .action-btn {
-            width: 36px;
-            height: 36px;
-            border: none;
-            background: rgba(255, 107, 107, 0.1);
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 18px;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
         .action-btn:hover {
-            background: rgba(255, 107, 107, 0.2);
-            transform: scale(1.1);
-        }
-
-        .action-btn:active {
-            transform: scale(0.95);
+            background: rgba(255,107,107,0.3);
         }
 
         .input-field {
             flex: 1;
-            padding: 10px 15px;
-            border: 1px solid #F0E8E5;
+            padding: 8px 12px;
+            border: 1px solid rgba(255,255,255,0.1);
             border-radius: 20px;
             font-size: 14px;
             resize: none;
-            max-height: 100px;
+            max-height: 80px;
             font-family: inherit;
-            transition: all 0.3s ease;
+            background: rgba(255,255,255,0.05);
+            color: #e0e0e0;
+            transition: all 0.2s ease;
         }
 
         .input-field:focus {
             outline: none;
             border-color: #FF6B6B;
-            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+            background: rgba(255,255,255,0.08);
         }
 
         .send-btn {
-            width: 36px;
-            height: 36px;
+            width: 32px;
+            height: 32px;
             border: none;
-            background: #FF6B6B;
+            background: linear-gradient(135deg, #FF6B6B, #FF8787);
             color: white;
             border-radius: 50%;
             cursor: pointer;
-            font-size: 18px;
-            transition: all 0.3s ease;
+            font-size: 16px;
+            transition: all 0.2s ease;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
         .send-btn:hover {
-            background: #FF5555;
-            transform: scale(1.1);
+            transform: scale(1.05);
         }
 
-        .send-btn:active {
-            transform: scale(0.95);
-        }
-
-        /* Modals */
         .modal {
             display: none;
             position: fixed;
@@ -421,7 +332,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.7);
             z-index: 1000;
             align-items: center;
             justify-content: center;
@@ -432,35 +343,22 @@
         }
 
         .modal-content {
-            background: white;
-            border-radius: 20px;
-            padding: 25px;
+            background: #1a1a2e;
+            border-radius: 12px;
+            padding: 20px;
             max-width: 90%;
             max-height: 80vh;
             overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            animation: slideUp 0.3s ease;
-        }
-
-        @keyframes slideUp {
-            from {
-                transform: translateY(50px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.1);
+            position: relative;
         }
 
         .modal-header {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
-            color: #2C3E50;
+            color: #fff;
             margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
         }
 
         .modal-close {
@@ -471,161 +369,73 @@
             border: none;
             font-size: 24px;
             cursor: pointer;
-            color: #999;
+            color: #aaa;
         }
 
-        .saved-item {
-            background: #FFF9F7;
-            border: 1px solid #F0E8E5;
-            border-radius: 12px;
-            padding: 12px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 10px;
-        }
-
-        .saved-item-text {
-            flex: 1;
-            font-size: 14px;
-            color: #2C3E50;
-            line-height: 1.4;
-        }
-
-        .saved-item-time {
-            font-size: 12px;
-            color: #999;
-            white-space: nowrap;
-        }
-
-        .delete-btn {
-            background: #FF6B6B;
+        .btn {
+            background: linear-gradient(135deg, #FF6B6B, #FF8787);
             color: white;
             border: none;
-            border-radius: 6px;
-            padding: 5px 10px;
-            font-size: 12px;
+            border-radius: 8px;
+            padding: 10px 16px;
+            font-size: 14px;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
+            width: 100%;
+            margin-bottom: 10px;
         }
 
-        .delete-btn:hover {
-            background: #FF5555;
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
         }
 
-        .date-form {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .form-input-text {
+        .input-text {
             width: 100%;
             padding: 10px;
-            border: 1px solid #F0E8E5;
+            border: 1px solid rgba(255,255,255,0.1);
             border-radius: 8px;
             font-size: 14px;
             font-family: inherit;
+            background: rgba(255,255,255,0.05);
+            color: #e0e0e0;
+            margin-bottom: 10px;
         }
 
-        .form-input-text:focus {
+        .input-text:focus {
             outline: none;
             border-color: #FF6B6B;
         }
 
-        .add-btn {
-            background: #FF6B6B;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 10px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .add-btn:hover {
-            background: #FF5555;
-            transform: translateY(-2px);
-        }
-
-        .date-item {
-            background: #FFF9F7;
-            border: 1px solid #F0E8E5;
+        .profile-section {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
             border-radius: 12px;
-            padding: 12px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-        }
-
-        .date-info {
-            flex: 1;
-        }
-
-        .date-title {
-            font-weight: 600;
-            color: #2C3E50;
-            margin-bottom: 3px;
-        }
-
-        .date-date {
-            font-size: 13px;
-            color: #FF6B6B;
-            margin-bottom: 3px;
-        }
-
-        .date-desc {
-            font-size: 12px;
-            color: #999;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        .qr-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .qr-box {
-            background: white;
             padding: 15px;
-            border-radius: 10px;
-            border: 2px solid #F0E8E5;
+            margin-bottom: 15px;
         }
 
-        .qr-info {
+        .stat-item {
             text-align: center;
-            font-size: 13px;
-            color: #999;
-            line-height: 1.6;
-        }
-
-        .sync-status {
-            background: #E8F5E9;
-            border: 1px solid #4CAF50;
-            color: #2E7D32;
-            padding: 10px;
+            padding: 15px;
+            background: rgba(255,255,255,0.05);
             border-radius: 8px;
-            text-align: center;
-            font-size: 13px;
-            font-weight: 600;
+            margin-bottom: 10px;
         }
 
-        .sync-status.error {
-            background: #FFEBEE;
-            border-color: #FF6B6B;
-            color: #C62828;
+        .stat-label {
+            font-size: 12px;
+            color: #aaa;
+            margin-bottom: 5px;
         }
 
-        /* Responsive */
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #FF6B6B;
+        }
+
         ::-webkit-scrollbar {
             width: 6px;
         }
@@ -635,24 +445,8 @@
         }
 
         ::-webkit-scrollbar-thumb {
-            background: #F0E8E5;
+            background: rgba(255,255,255,0.1);
             border-radius: 3px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #E0D8D5;
-        }
-
-        /* Responsive */
-        @media (max-width: 600px) {
-            .container {
-                max-height: 100vh;
-                border-radius: 0;
-            }
-
-            .message-bubble {
-                max-width: 85%;
-            }
         }
     </style>
 </head>
@@ -665,22 +459,15 @@
             <p class="login-subtitle">พื้นที่ส่วนตัวสำหรับสองคนเท่านั้น</p>
             
             <div class="login-form">
-                <div class="form-group">
-                    <label class="form-label">ใส่ PIN เข้าสู่ระบบ</label>
-                    <input 
-                        type="password" 
-                        id="pinInput" 
-                        class="form-input" 
-                        placeholder="••••" 
-                        maxlength="6"
-                    >
-                </div>
-                <button class="login-btn" id="loginBtn" onclick="handleLogin()">เข้าสู่ระบบ</button>
-            </div>
-
-            <div class="login-info">
-                <p>🔒 ข้อมูลของคุณปลอดภัยและเป็นส่วนตัว</p>
-                <p>💕 เฉพาะสองคนเท่านั้นที่สามารถเข้าถึงได้</p>
+                <label class="form-label">ใส่ PIN เข้าสู่ระบบ</label>
+                <input 
+                    type="password" 
+                    id="pinInput" 
+                    class="form-input" 
+                    placeholder="••••" 
+                    maxlength="6"
+                >
+                <button class="login-btn" onclick="handleLogin()">เข้าสู่ระบบ</button>
             </div>
         </div>
 
@@ -692,13 +479,13 @@
                     <div class="header-avatar">💕</div>
                     <div class="header-info">
                         <h2>ของเรา</h2>
-                        <p><span class="online-badge"></span>Online</p>
+                        <p>Online</p>
                     </div>
                 </div>
                 <div class="header-actions">
-                    <button class="header-btn" onclick="openSavedMessages()" title="ข้อความที่เก็บไว้">❤️</button>
-                    <button class="header-btn" onclick="openImportantDates()" title="วันสำคัญ">📅</button>
-                    <button class="header-btn" onclick="openSurprise()" title="ส่งเซอร์ไพรส์">🎉</button>
+                    <button class="header-btn" onclick="openStats()" title="สถิติ">📊</button>
+                    <button class="header-btn" onclick="openLetter()" title="จดหมาย">💌</button>
+                    <button class="header-btn" onclick="openGifts()" title="ของขวัญ">🎁</button>
                     <button class="header-btn" onclick="openSettings()" title="ตั้งค่า">⚙️</button>
                 </div>
             </div>
@@ -709,9 +496,9 @@
             <!-- Input Area -->
             <div class="input-area">
                 <div class="input-actions">
-                    <button class="action-btn" onclick="triggerImageInput()" title="ส่งรูปภาพ">🖼️</button>
+                    <button class="action-btn" onclick="triggerImageInput()" title="รูปภาพ">🖼️</button>
                     <input type="file" id="imageInput" accept="image/*" style="display: none;" onchange="handleImageSelect()">
-                    <button class="action-btn" onclick="startVoiceNote()" id="voiceBtn" title="บันทึกเสียง">🎤</button>
+                    <button class="action-btn" onclick="toggleVoice()" id="voiceBtn" title="เสียง">🎤</button>
                 </div>
                 <textarea 
                     class="input-field" 
@@ -724,157 +511,86 @@
         </div>
     </div>
 
-    <!-- Modals -->
-    <div class="modal" id="savedModal">
+    <!-- Stats Modal -->
+    <div class="modal" id="statsModal">
         <div class="modal-content">
-            <button class="modal-close" onclick="closeSavedMessages()">✕</button>
-            <div class="modal-header">❤️ ข้อความที่เก็บไว้</div>
-            <div id="savedList"></div>
-        </div>
-    </div>
-
-    <div class="modal" id="datesModal">
-        <div class="modal-content">
-            <button class="modal-close" onclick="closeDates()">✕</button>
-            <div class="modal-header">📅 วันสำคัญ</div>
-            <div id="datesList"></div>
-            <div class="date-form">
-                <input type="text" id="dateTitle" class="form-input-text" placeholder="ชื่อวันสำคัญ" />
-                <input type="date" id="dateDate" class="form-input-text" />
-                <input type="text" id="dateDesc" class="form-input-text" placeholder="หมายเหตุ (ไม่บังคับ)" />
-                <button class="add-btn" onclick="addDate()">+ เพิ่มวันสำคัญ</button>
+            <button class="modal-close" onclick="closeStats()">✕</button>
+            <div class="modal-header">📊 สถิติความรัก</div>
+            
+            <div class="stat-item">
+                <div class="stat-label">💬 ข้อความ</div>
+                <div class="stat-value" id="msgCount">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">🖼️ รูปภาพ</div>
+                <div class="stat-value" id="imgCount">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">🎤 เสียง</div>
+                <div class="stat-value" id="audioCount">0</div>
             </div>
         </div>
     </div>
 
+    <!-- Letter Modal -->
+    <div class="modal" id="letterModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeLetter()">✕</button>
+            <div class="modal-header">💌 จดหมายรักษ์</div>
+            
+            <textarea id="letterText" class="input-text" placeholder="เขียนจดหมายให้แฟน..." style="height: 200px; resize: vertical;"></textarea>
+            <button class="btn" onclick="saveLetter()">💾 บันทึก</button>
+            <div id="lettersContainer"></div>
+        </div>
+    </div>
+
+    <!-- Gifts Modal -->
+    <div class="modal" id="giftsModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeGifts()">✕</button>
+            <div class="modal-header">🎁 ของขวัญ</div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <button class="btn" onclick="sendGift('💝', 'ของขวัญ')" style="font-size: 20px; padding: 20px;">💝</button>
+                <button class="btn" onclick="sendGift('🎂', 'วันเกิด')" style="font-size: 20px; padding: 20px;">🎂</button>
+                <button class="btn" onclick="sendGift('🎉', 'ฉลอง')" style="font-size: 20px; padding: 20px;">🎉</button>
+                <button class="btn" onclick="sendGift('💐', 'ดอกไม้')" style="font-size: 20px; padding: 20px;">💐</button>
+                <button class="btn" onclick="sendGift('🌹', 'กุหลาบ')" style="font-size: 20px; padding: 20px;">🌹</button>
+                <button class="btn" onclick="sendGift('💍', 'แหวน')" style="font-size: 20px; padding: 20px;">💍</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
     <div class="modal" id="settingsModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeSettings()">✕</button>
             <div class="modal-header">⚙️ ตั้งค่า</div>
-            <div style="display: flex; flex-direction: column; gap: 15px;">
-                <button class="add-btn" onclick="openPermissions()" style="background: #9C27B0;">🔐 สิทธิ์การเข้าถึง</button>
-                <button class="add-btn" onclick="openQRSync()" style="background: #4CAF50;">🔗 ซิงค์ข้อมูล (QR Code)</button>
-                <button class="add-btn" onclick="clearAllData()" style="background: #FF6B6B;">🗑️ ลบข้อมูลทั้งหมด</button>
-                <button class="add-btn" onclick="logout()" style="background: #FF6B6B;">🚪 ออกจากระบบ</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal" id="qrModal">
-        <div class="modal-content">
-            <button class="modal-close" onclick="closeQRSync()">✕</button>
-            <div class="modal-header">🔗 ซิงค์ข้อมูลกับแฟน</div>
             
-            <div class="qr-container">
-                <div style="display: flex; gap: 20px; width: 100%; justify-content: center; flex-wrap: wrap;">
-                    <!-- Generate QR -->
-                    <div style="text-align: center;">
-                        <p style="font-size: 13px; font-weight: 600; margin-bottom: 10px;">📱 สร้าง QR Code</p>
-                        <button class="add-btn" onclick="generateQR()" style="background: #4CAF50; margin-bottom: 10px;">สร้าง QR Code</button>
-                        <div id="qrCode" class="qr-box"></div>
-                    </div>
-
-                    <!-- Scan QR -->
-                    <div style="text-align: center;">
-                        <p style="font-size: 13px; font-weight: 600; margin-bottom: 10px;">📸 สแกน QR Code</p>
-                        <input type="text" id="qrInput" class="form-input-text" placeholder="วาง QR Code ที่นี่" style="margin-bottom: 10px;">
-                        <button class="add-btn" onclick="syncFromQR()" style="background: #2196F3;">ซิงค์ข้อมูล</button>
-                    </div>
-                </div>
-
-                <div id="syncStatus"></div>
-
-                <div class="qr-info">
-                    <p>📖 วิธีใช้:</p>
-                    <p>1. คนที่ 1 → สร้าง QR Code</p>
-                    <p>2. คนที่ 2 → สแกน QR Code</p>
-                    <p>3. ข้อมูลซิงค์ทั้งสองเครื่อง ✅</p>
-                </div>
-            </div>
+            <button class="btn" onclick="logout()">🚪 ออกจากระบบ</button>
+            <button class="btn" onclick="clearData()" style="background: linear-gradient(135deg, #F44336, #EF5350);">🗑️ ลบข้อมูล</button>
         </div>
     </div>
 
-    <div class="modal" id="permissionsModal">
-        <div class="modal-content">
-            <button class="modal-close" onclick="closePermissions()">✕</button>
-            <div class="modal-header">🔐 สิทธิ์การเข้าถึง</div>
-            <div style="display: flex; flex-direction: column; gap: 15px;">
-                <div style="background: #FFF9F7; border: 1px solid #F0E8E5; border-radius: 12px; padding: 15px;">
-                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
-                        <div>
-                            <p style="font-weight: 600; color: #2C3E50; margin-bottom: 3px;">🎤 ฟังเสียงแฟน</p>
-                            <p style="font-size: 12px; color: #999;">ให้สิทธิ์ฟังเสียงของแฟน</p>
-                        </div>
-                        <input type="checkbox" id="audioPermission" onchange="updatePermission('audio')" style="width: 20px; height: 20px; cursor: pointer;">
-                    </div>
-                    <div id="audioStatus" style="font-size: 12px; color: #999; padding: 8px; background: white; border-radius: 6px; text-align: center;">❌ ไม่อนุญาต</div>
-                </div>
-                <div style="background: #FFF9F7; border: 1px solid #F0E8E5; border-radius: 12px; padding: 15px;">
-                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
-                        <div>
-                            <p style="font-weight: 600; color: #2C3E50; margin-bottom: 3px;">📍 แชร์ตำแหน่ง GPS</p>
-                            <p style="font-size: 12px; color: #999;">ให้สิทธิ์ดูตำแหน่งของแฟน</p>
-                        </div>
-                        <input type="checkbox" id="gpsPermission" onchange="updatePermission('gps')" style="width: 20px; height: 20px; cursor: pointer;">
-                    </div>
-                    <div id="gpsStatus" style="font-size: 12px; color: #999; padding: 8px; background: white; border-radius: 6px; text-align: center;">❌ ไม่อนุญาต</div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="modal" id="surpriseModal">
-        <div class="modal-content">
-            <button class="modal-close" onclick="closeSurprise()">✕</button>
-            <div class="modal-header">🎉 ส่งเซอร์ไพรส์</div>
-            <div style="display: flex; flex-direction: column; gap: 15px;">
-                <button class="add-btn" onclick="sendSurprise('heart')" style="background: #FF6B6B; font-size: 16px;">💕 ส่งหัวใจ</button>
-                <button class="add-btn" onclick="sendSurprise('kiss')" style="background: #FF1493; font-size: 16px;">😘 ส่งจูบ</button>
-                <button class="add-btn" onclick="sendSurprise('hug')" style="background: #FF69B4; font-size: 16px;">🤗 ส่งกอด</button>
-                <button class="add-btn" onclick="sendSurprise('confetti')" style="background: #FFD700; font-size: 16px;">🎊 ส่งเซอร์ไพรส์</button>
-                <button class="add-btn" onclick="sendSurprise('love')" style="background: #FF4500; font-size: 16px;">❤️ ส่งความรัก</button>
-            </div>
-        </div>
-    </div>
     <script>
-        // Data Management
         const DB_KEY = 'coupleChat_';
-        
-        function saveData(key, data) {
-            localStorage.setItem(DB_KEY + key, JSON.stringify(data));
-        }
-
-        function getData(key, defaultValue = []) {
-            const data = localStorage.getItem(DB_KEY + key);
-            return data ? JSON.parse(data) : defaultValue;
-        }
-
-        // State
-        let messages = getData('messages', []);
-        let savedMessages = getData('savedMessages', []);
-        let importantDates = getData('importantDates', []);
+        let messages = [];
         let isRecording = false;
         let mediaRecorder = null;
         let audioChunks = [];
 
-        // Initialize
         function init() {
             const pin = localStorage.getItem(DB_KEY + 'pin');
+            messages = JSON.parse(localStorage.getItem(DB_KEY + 'messages') || '[]');
+            
             if (pin) {
-                showChatScreen();
+                showChat();
                 renderMessages();
             } else {
-                showLoginScreen();
+                showLogin();
             }
-
-            // Auto-save messages
-            setInterval(() => {
-                saveData('messages', messages);
-                saveData('savedMessages', savedMessages);
-                saveData('importantDates', importantDates);
-            }, 5000);
         }
 
-        // Login
         function handleLogin() {
             const pin = document.getElementById('pinInput').value;
             if (pin.length < 4) {
@@ -882,117 +598,36 @@
                 return;
             }
             localStorage.setItem(DB_KEY + 'pin', pin);
-            showChatScreen();
-            renderMessages();
+            showChat();
         }
 
-        // UI Functions
-        function showLoginScreen() {
+        function showLogin() {
             document.getElementById('loginScreen').classList.remove('hidden');
             document.getElementById('chatScreen').classList.add('hidden');
         }
 
-        function showChatScreen() {
+        function showChat() {
             document.getElementById('loginScreen').classList.add('hidden');
             document.getElementById('chatScreen').classList.remove('hidden');
         }
 
-        // Messages
         function sendMessage() {
             const input = document.getElementById('messageInput');
             const text = input.value.trim();
             
             if (!text) return;
 
-            const message = {
+            const msg = {
                 id: Date.now(),
                 text: text,
                 sender: 'you',
-                timestamp: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }),
-                date: new Date().toLocaleDateString('th-TH')
+                time: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
             };
 
-            messages.push(message);
-            saveData('messages', messages);
+            messages.push(msg);
+            saveMessages();
             input.value = '';
             renderMessages();
-            scrollToBottom();
-        }
-
-        function handleImageSelect() {
-            const file = document.getElementById('imageInput').files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const message = {
-                        id: Date.now(),
-                        image: e.target.result,
-                        sender: 'you',
-                        timestamp: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }),
-                        date: new Date().toLocaleDateString('th-TH')
-                    };
-                    messages.push(message);
-                    saveData('messages', messages);
-                    renderMessages();
-                    scrollToBottom();
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
-        function triggerImageInput() {
-            document.getElementById('imageInput').click();
-        }
-
-        function startVoiceNote() {
-            if (isRecording) {
-                stopVoiceNote();
-                return;
-            }
-
-            isRecording = true;
-            audioChunks = [];
-            document.getElementById('voiceBtn').style.background = '#FF5555';
-
-            navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
-                mediaRecorder = new MediaRecorder(stream);
-                mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
-                mediaRecorder.onstart = () => {
-                    console.log('Recording started');
-                };
-                mediaRecorder.start();
-            }).catch(err => {
-                alert('ไม่สามารถเข้าถึงไมค์: ' + err.message);
-                isRecording = false;
-                document.getElementById('voiceBtn').style.background = '';
-            });
-        }
-
-        function stopVoiceNote() {
-            if (!mediaRecorder) return;
-
-            mediaRecorder.onstop = () => {
-                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                const audioUrl = URL.createObjectURL(audioBlob);
-
-                const message = {
-                    id: Date.now(),
-                    audio: audioUrl,
-                    sender: 'you',
-                    timestamp: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }),
-                    date: new Date().toLocaleDateString('th-TH')
-                };
-
-                messages.push(message);
-                saveData('messages', messages);
-                renderMessages();
-                scrollToBottom();
-            };
-
-            mediaRecorder.stop();
-            mediaRecorder.stream.getTracks().forEach(track => track.stop());
-            isRecording = false;
-            document.getElementById('voiceBtn').style.background = '';
         }
 
         function renderMessages() {
@@ -1002,182 +637,196 @@
             messages.forEach(msg => {
                 const div = document.createElement('div');
                 div.className = `message ${msg.sender === 'you' ? 'sent' : 'received'}`;
-
+                
                 let content = '';
                 if (msg.text) {
-                    content += `<div class="message-bubble">
-                        <span>${escapeHtml(msg.text)}</span>
-                        <span class="message-time">${msg.timestamp}</span>
-                        <div class="message-actions">
-                            <button class="message-action-btn" onclick="saveMessageToMemory(${msg.id})" title="เก็บข้อความ">❤️</button>
-                        </div>
-                    </div>`;
+                    content = `<div class="message-bubble">${escapeHtml(msg.text)}</div>`;
                 } else if (msg.image) {
-                    content += `<div class="message-bubble">
-                        <img src="${msg.image}" class="message-image" style="max-width: 200px;">
-                        <span class="message-time">${msg.timestamp}</span>
-                        <div class="message-actions">
-                            <button class="message-action-btn" onclick="saveMessageToMemory(${msg.id})" title="เก็บรูปภาพ">❤️</button>
-                        </div>
-                    </div>`;
+                    content = `<div class="message-bubble"><img src="${msg.image}" style="max-width: 100%; border-radius: 8px;"></div>`;
                 } else if (msg.audio) {
-                    content += `<div class="message-bubble">
-                        <audio controls style="width: 100%; max-width: 200px;">
-                            <source src="${msg.audio}" type="audio/webm">
-                        </audio>
-                        <span class="message-time">${msg.timestamp}</span>
-                        <div class="message-actions">
-                            <button class="message-action-btn" onclick="saveMessageToMemory(${msg.id})" title="เก็บเสียง">❤️</button>
-                        </div>
-                    </div>`;
+                    content = `<div class="message-bubble"><audio controls style="width: 100%; max-width: 200px;"><source src="${msg.audio}" type="audio/webm"></audio></div>`;
                 }
-
+                
                 div.innerHTML = content;
                 area.appendChild(div);
             });
 
-            scrollToBottom();
-        }
-
-        function scrollToBottom() {
-            const area = document.getElementById('messagesArea');
             area.scrollTop = area.scrollHeight;
         }
 
-        function saveMessageToMemory(messageId) {
-            const msg = messages.find(m => m.id === messageId);
-            if (!msg) return;
-
-            const saved = {
-                id: Date.now(),
-                content: msg.text || (msg.image ? '[รูปภาพ]' : '[เสียง]'),
-                type: msg.text ? 'text' : (msg.image ? 'image' : 'audio'),
-                data: msg.image || msg.audio || msg.text,
-                savedAt: new Date().toLocaleString('th-TH')
-            };
-
-            savedMessages.push(saved);
-            saveData('savedMessages', savedMessages);
-            alert('✅ บันทึกเรียบร้อย');
+        function saveMessages() {
+            localStorage.setItem(DB_KEY + 'messages', JSON.stringify(messages));
         }
 
-        // Saved Messages
-        function openSavedMessages() {
-            renderSavedMessages();
-            document.getElementById('savedModal').classList.add('active');
-        }
-
-        function closeSavedMessages() {
-            document.getElementById('savedModal').classList.remove('active');
-        }
-
-        function renderSavedMessages() {
-            const list = document.getElementById('savedList');
-            list.innerHTML = '';
-
-            if (savedMessages.length === 0) {
-                list.innerHTML = '<p style="text-align: center; color: #999; padding: 20px;">ยังไม่มีข้อความที่เก็บไว้</p>';
-                return;
+        function handleImageSelect() {
+            const file = document.getElementById('imageInput').files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    messages.push({
+                        id: Date.now(),
+                        image: e.target.result,
+                        sender: 'you',
+                        time: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
+                    });
+                    saveMessages();
+                    renderMessages();
+                };
+                reader.readAsDataURL(file);
             }
+        }
 
-            savedMessages.forEach(msg => {
-                const div = document.createElement('div');
-                div.className = 'saved-item';
+        function triggerImageInput() {
+            document.getElementById('imageInput').click();
+        }
 
-                let content = '';
-                if (msg.type === 'image') {
-                    content = `<img src="${msg.data}" style="width: 50px; height: 50px; border-radius: 8px; object-fit: cover;">`;
-                } else if (msg.type === 'audio') {
-                    content = `<audio controls style="width: 100%; max-width: 150px;"><source src="${msg.data}" type="audio/webm"></audio>`;
-                } else {
-                    content = `<div class="saved-item-text">${escapeHtml(msg.content)}</div>`;
-                }
+        function toggleVoice() {
+            if (isRecording) {
+                stopVoice();
+            } else {
+                startVoice();
+            }
+        }
 
-                div.innerHTML = `
-                    ${content}
-                    <div style="flex: 1; margin-left: 10px;">
-                        <div class="saved-item-time">${msg.savedAt}</div>
-                        <button class="delete-btn" onclick="deleteSavedMessage(${msg.id})">ลบ</button>
-                    </div>
-                `;
-                list.appendChild(div);
+        function startVoice() {
+            isRecording = true;
+            audioChunks = [];
+            document.getElementById('voiceBtn').style.background = '#F44336';
+
+            navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+                mediaRecorder = new MediaRecorder(stream);
+                mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
+                mediaRecorder.start();
+            }).catch(() => {
+                alert('ไม่สามารถเข้าถึงไมค์');
+                isRecording = false;
+                document.getElementById('voiceBtn').style.background = '';
             });
         }
 
-        function deleteSavedMessage(id) {
-            savedMessages = savedMessages.filter(m => m.id !== id);
-            saveData('savedMessages', savedMessages);
-            renderSavedMessages();
-        }
+        function stopVoice() {
+            if (!mediaRecorder) return;
 
-        // Important Dates
-        function openImportantDates() {
-            renderDates();
-            document.getElementById('datesModal').classList.add('active');
-        }
+            mediaRecorder.onstop = () => {
+                const blob = new Blob(audioChunks, { type: 'audio/webm' });
+                const url = URL.createObjectURL(blob);
 
-        function closeDates() {
-            document.getElementById('datesModal').classList.remove('active');
-        }
-
-        function addDate() {
-            const title = document.getElementById('dateTitle').value;
-            const date = document.getElementById('dateDate').value;
-            const desc = document.getElementById('dateDesc').value;
-
-            if (!title || !date) {
-                alert('กรุณากรอกชื่อและวันที่');
-                return;
-            }
-
-            const newDate = {
-                id: Date.now(),
-                title: title,
-                date: new Date(date).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }),
-                desc: desc
+                messages.push({
+                    id: Date.now(),
+                    audio: url,
+                    sender: 'you',
+                    time: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
+                });
+                saveMessages();
+                renderMessages();
             };
 
-            importantDates.push(newDate);
-            saveData('importantDates', importantDates);
-
-            document.getElementById('dateTitle').value = '';
-            document.getElementById('dateDate').value = '';
-            document.getElementById('dateDesc').value = '';
-
-            renderDates();
+            mediaRecorder.stop();
+            mediaRecorder.stream.getTracks().forEach(track => track.stop());
+            isRecording = false;
+            document.getElementById('voiceBtn').style.background = '';
         }
 
-        function renderDates() {
-            const list = document.getElementById('datesList');
-            list.innerHTML = '';
+        function openStats() {
+            const textCount = messages.filter(m => m.text).length;
+            const imageCount = messages.filter(m => m.image).length;
+            const audioCount = messages.filter(m => m.audio).length;
 
-            if (importantDates.length === 0) {
-                list.innerHTML = '<p style="text-align: center; color: #999; padding: 20px;">ยังไม่มีวันสำคัญ</p>';
+            document.getElementById('msgCount').textContent = textCount;
+            document.getElementById('imgCount').textContent = imageCount;
+            document.getElementById('audioCount').textContent = audioCount;
+            document.getElementById('statsModal').classList.add('active');
+        }
+
+        function closeStats() {
+            document.getElementById('statsModal').classList.remove('active');
+        }
+
+        function openLetter() {
+            document.getElementById('letterModal').classList.add('active');
+            renderLetters();
+        }
+
+        function closeLetter() {
+            document.getElementById('letterModal').classList.remove('active');
+        }
+
+        function saveLetter() {
+            const text = document.getElementById('letterText').value.trim();
+            if (!text) {
+                alert('กรุณาเขียนจดหมาย');
                 return;
             }
 
-            importantDates.forEach(date => {
+            let letters = JSON.parse(localStorage.getItem(DB_KEY + 'letters') || '[]');
+            letters.push({
+                id: Date.now(),
+                text: text,
+                date: new Date().toLocaleDateString('th-TH')
+            });
+            localStorage.setItem(DB_KEY + 'letters', JSON.stringify(letters));
+            document.getElementById('letterText').value = '';
+            renderLetters();
+            alert('✅ บันทึกจดหมาย');
+        }
+
+        function renderLetters() {
+            const letters = JSON.parse(localStorage.getItem(DB_KEY + 'letters') || '[]');
+            const container = document.getElementById('lettersContainer');
+            container.innerHTML = '';
+
+            if (letters.length === 0) {
+                container.innerHTML = '<p style="color: #aaa; text-align: center;">ยังไม่มีจดหมาย</p>';
+                return;
+            }
+
+            letters.reverse().forEach(letter => {
                 const div = document.createElement('div');
-                div.className = 'date-item';
+                div.className = 'profile-section';
                 div.innerHTML = `
-                    <div class="date-info">
-                        <div class="date-title">${escapeHtml(date.title)}</div>
-                        <div class="date-date">📅 ${date.date}</div>
-                        ${date.desc ? `<div class="date-desc">${escapeHtml(date.desc)}</div>` : ''}
-                    </div>
-                    <button class="delete-btn" onclick="deleteDate(${date.id})">ลบ</button>
+                    <p style="color: #aaa; font-size: 11px; margin-bottom: 8px;">${letter.date}</p>
+                    <p style="color: #e0e0e0; line-height: 1.5;">${escapeHtml(letter.text)}</p>
                 `;
-                list.appendChild(div);
+                container.appendChild(div);
             });
         }
 
-        function deleteDate(id) {
-            importantDates = importantDates.filter(d => d.id !== id);
-            saveData('importantDates', importantDates);
-            renderDates();
+        function openGifts() {
+            document.getElementById('giftsModal').classList.add('active');
         }
 
-        // Settings
+        function closeGifts() {
+            document.getElementById('giftsModal').classList.remove('active');
+        }
+
+        function sendGift(emoji, name) {
+            messages.push({
+                id: Date.now(),
+                text: `🎁 ส่ง${name}ให้แฟน ${emoji}`,
+                sender: 'you',
+                time: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
+            });
+            saveMessages();
+            renderMessages();
+            closeGifts();
+            showConfetti();
+        }
+
+        function showConfetti() {
+            const confetti = document.createElement('div');
+            confetti.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999;';
+            document.body.appendChild(confetti);
+
+            for (let i = 0; i < 50; i++) {
+                const p = document.createElement('div');
+                p.style.cssText = `position: absolute; left: ${Math.random() * 100}%; top: -10px; font-size: 20px; animation: fall 3s linear forwards; opacity: 1;`;
+                p.textContent = ['🎉', '💝', '✨', '💕', '🎊'][Math.floor(Math.random() * 5)];
+                confetti.appendChild(p);
+            }
+
+            setTimeout(() => confetti.remove(), 3000);
+        }
+
         function openSettings() {
             document.getElementById('settingsModal').classList.add('active');
         }
@@ -1186,246 +835,41 @@
             document.getElementById('settingsModal').classList.remove('active');
         }
 
-        function clearAllData() {
-            if (confirm('⚠️ คุณแน่ใจหรือไม่? การลบข้อมูลไม่สามารถกู้คืนได้')) {
+        function logout() {
+            if (confirm('ออกจากระบบ?')) {
+                localStorage.removeItem(DB_KEY + 'pin');
+                showLogin();
+                document.getElementById('pinInput').value = '';
+                closeSettings();
+            }
+        }
+
+        function clearData() {
+            if (confirm('ลบข้อมูลทั้งหมด?')) {
                 Object.keys(localStorage).forEach(key => {
                     if (key.startsWith(DB_KEY)) {
                         localStorage.removeItem(key);
                     }
                 });
                 messages = [];
-                savedMessages = [];
-                importantDates = [];
                 renderMessages();
-                closeSettings();
-                alert('✅ ลบข้อมูลเรียบร้อย');
-            }
-        }
-
-        function logout() {
-            if (confirm('คุณต้องการออกจากระบบหรือไม่?')) {
-                localStorage.removeItem(DB_KEY + 'pin');
-                showLoginScreen();
-                document.getElementById('pinInput').value = '';
+                alert('✅ ลบเรียบร้อย');
                 closeSettings();
             }
         }
 
-        // QR Code Sync
-        function generateQR() {
-            const qrContainer = document.getElementById('qrCode');
-            qrContainer.innerHTML = '';
-
-            // สร้าง Sync Code จากข้อมูลปัจจุบัน
-            const syncData = {
-                pin: localStorage.getItem(DB_KEY + 'pin'),
-                messages: getData('messages', []),
-                savedMessages: getData('savedMessages', []),
-                importantDates: getData('importantDates', [])
-            };
-
-            const syncCode = btoa(JSON.stringify(syncData));
-            const qrText = 'COUPLE_CHAT:' + syncCode;
-
-            new QRCode(qrContainer, {
-                text: qrText,
-                width: 200,
-                height: 200,
-                colorDark: '#FF6B6B',
-                colorLight: '#FFFFFF',
-                correctLevel: QRCode.CorrectLevel.H
-            });
-
-            showSyncStatus('✅ QR Code สร้างสำเร็จ! ให้แฟนสแกน', false);
-        }
-
-        function syncFromQR() {
-            const input = document.getElementById('qrInput').value.trim();
-            
-            if (!input.startsWith('COUPLE_CHAT:')) {
-                showSyncStatus('❌ QR Code ไม่ถูกต้อง', true);
-                return;
-            }
-
-            try {
-                const syncCode = input.replace('COUPLE_CHAT:', '');
-                const syncData = JSON.parse(atob(syncCode));
-
-                // ตรวจสอบ PIN
-                const currentPin = localStorage.getItem(DB_KEY + 'pin');
-                if (syncData.pin !== currentPin) {
-                    showSyncStatus('❌ PIN ไม่ตรงกัน', true);
-                    return;
-                }
-
-                // ซิงค์ข้อมูล
-                messages = syncData.messages || [];
-                savedMessages = syncData.savedMessages || [];
-                importantDates = syncData.importantDates || [];
-
-                saveData('messages', messages);
-                saveData('savedMessages', savedMessages);
-                saveData('importantDates', importantDates);
-
-                renderMessages();
-                showSyncStatus('✅ ซิงค์ข้อมูลสำเร็จ! ข้อมูลทั้งหมดอัปเดตแล้ว', false);
-                
-                setTimeout(() => {
-                    closeQRSync();
-                }, 2000);
-            } catch (err) {
-                showSyncStatus('❌ เกิดข้อผิดพลาด: ' + err.message, true);
-            }
-        }
-
-        function showSyncStatus(message, isError) {
-            const statusDiv = document.getElementById('syncStatus');
-            statusDiv.className = 'sync-status' + (isError ? ' error' : '');
-            statusDiv.textContent = message;
-        }
-
-        function openQRSync() {
-            document.getElementById('qrModal').classList.add('active');
-            document.getElementById('qrInput').value = '';
-            document.getElementById('syncStatus').innerHTML = '';
-        }
-
-        function closeQRSync() {
-            document.getElementById('qrModal').classList.remove('active');
-        }
-
-        // Permissions
-        function openPermissions() {
-            loadPermissions();
-            document.getElementById('permissionsModal').classList.add('active');
-        }
-
-        function closePermissions() {
-            document.getElementById('permissionsModal').classList.remove('active');
-        }
-
-        function loadPermissions() {
-            const audioAllowed = localStorage.getItem(DB_KEY + 'audioPermission') === 'true';
-            const gpsAllowed = localStorage.getItem(DB_KEY + 'gpsPermission') === 'true';
-
-            document.getElementById('audioPermission').checked = audioAllowed;
-            document.getElementById('gpsPermission').checked = gpsAllowed;
-
-            document.getElementById('audioStatus').textContent = audioAllowed ? '✅ อนุญาต' : '❌ ไม่อนุญาต';
-            document.getElementById('gpsStatus').textContent = gpsAllowed ? '✅ อนุญาต' : '❌ ไม่อนุญาต';
-        }
-
-        function updatePermission(type) {
-            const checkbox = document.getElementById(type + 'Permission');
-            const status = document.getElementById(type + 'Status');
-            
-            localStorage.setItem(DB_KEY + type + 'Permission', checkbox.checked);
-            status.textContent = checkbox.checked ? '✅ อนุญาต' : '❌ ไม่อนุญาต';
-
-            if (checkbox.checked) {
-                if (type === 'audio') {
-                    alert('🎤 สิทธิ์ฟังเสียงเปิดใช้งานแล้ว');
-                } else if (type === 'gps') {
-                    alert('📍 สิทธิ์แชร์ตำแหน่งเปิดใช้งานแล้ว');
-                }
-            }
-        }
-
-        // Surprise Features
-        function openSurprise() {
-            document.getElementById('surpriseModal').classList.add('active');
-        }
-
-        function closeSurprise() {
-            document.getElementById('surpriseModal').classList.remove('active');
-        }
-
-        function sendSurprise(type) {
-            let emoji = '';
-            let message = '';
-
-            switch(type) {
-                case 'heart':
-                    emoji = '💕';
-                    message = 'ส่งหัวใจให้แฟน';
-                    break;
-                case 'kiss':
-                    emoji = '😘';
-                    message = 'ส่งจูบให้แฟน';
-                    break;
-                case 'hug':
-                    emoji = '🤗';
-                    message = 'ส่งกอดให้แฟน';
-                    break;
-                case 'confetti':
-                    emoji = '🎊';
-                    message = 'ส่งเซอร์ไพรส์ให้แฟน';
-                    triggerConfetti();
-                    break;
-                case 'love':
-                    emoji = '❤️';
-                    message = 'ส่งความรักให้แฟน';
-                    break;
-            }
-
-            const msg = {
-                id: Date.now(),
-                text: emoji + ' ' + message,
-                sender: 'you',
-                timestamp: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }),
-                date: new Date().toLocaleDateString('th-TH'),
-                isSurprise: true
-            };
-
-            messages.push(msg);
-            saveData('messages', messages);
-            renderMessages();
-            closeSurprise();
-            scrollToBottom();
-        }
-
-        function triggerConfetti() {
-            const container = document.getElementById('messagesArea');
-            for (let i = 0; i < 50; i++) {
-                const confetti = document.createElement('div');
-                confetti.style.position = 'fixed';
-                confetti.style.left = Math.random() * 100 + '%';
-                confetti.style.top = '-10px';
-                confetti.style.fontSize = '20px';
-                confetti.style.pointerEvents = 'none';
-                confetti.style.zIndex = '9999';
-                confetti.textContent = ['🎉', '🎊', '💕', '✨', '🌟'][Math.floor(Math.random() * 5)];
-                document.body.appendChild(confetti);
-
-                let top = -10;
-                const interval = setInterval(() => {
-                    top += Math.random() * 3 + 2;
-                    confetti.style.top = top + 'px';
-                    confetti.style.opacity = 1 - (top / window.innerHeight);
-
-                    if (top > window.innerHeight) {
-                        clearInterval(interval);
-                        confetti.remove();
-                    }
-                }, 30);
-            }
-        }
-
-        // Utility
         function escapeHtml(text) {
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
         }
 
-        // Close modals on outside click
         document.addEventListener('click', (e) => {
             if (e.target.classList.contains('modal')) {
                 e.target.classList.remove('active');
             }
         });
 
-        // Enter to send message
         document.addEventListener('keypress', (e) => {
             if (e.key === 'Enter' && !e.shiftKey && e.target.id === 'messageInput') {
                 e.preventDefault();
@@ -1433,14 +877,26 @@
             }
         });
 
-        // Auto-expand textarea
         const textarea = document.getElementById('messageInput');
-        textarea.addEventListener('input', () => {
-            textarea.style.height = 'auto';
-            textarea.style.height = Math.min(textarea.scrollHeight, 100) + 'px';
-        });
+        if (textarea) {
+            textarea.addEventListener('input', () => {
+                textarea.style.height = 'auto';
+                textarea.style.height = Math.min(textarea.scrollHeight, 80) + 'px';
+            });
+        }
 
-        // Initialize on load
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fall {
+                to {
+                    top: 100%;
+                    opacity: 0;
+                    transform: rotate(360deg);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
         window.addEventListener('load', init);
     </script>
 </body>
