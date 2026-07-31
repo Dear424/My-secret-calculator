@@ -2,342 +2,362 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Terminal: แมวไข่ตุ๋น x แมวเฉาก๊วย
-  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Cat P2P Chat v3.0</title>
   <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
   <style>
-    * { box-sizing: border-box; }
-    body { 
-      background-color: #080808; 
-      color: #00ff66; 
-      font-family: 'Courier New', Courier, monospace; 
-      padding: 15px; 
-      margin: 0; 
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    body { background-color: #0b0f19; color: #e2e8f0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+    /* Header */
+    header {
+      background: #151c2c;
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #1e293b;
     }
-    h2 { margin-top: 0; font-size: 1.3rem; letter-spacing: 1px; }
-    .card { 
-      border: 1px solid #008833; 
-      padding: 12px; 
-      border-radius: 6px; 
-      margin-bottom: 12px; 
-      background: #111; 
-      box-shadow: 0 0 10px rgba(0, 255, 102, 0.05);
+    .header-info { display: flex; align-items: center; gap: 10px; }
+    .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #ef4444; }
+    .status-dot.online { background: #22c55e; box-shadow: 0 0 8px #22c55e; }
+    .chat-title { font-weight: bold; font-size: 1rem; color: #f8fafc; }
+    .btn-icon { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #94a3b8; padding: 4px; }
+
+    /* Settings Drawer */
+    .drawer {
+      background: #1e293b;
+      padding: 12px;
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      border-bottom: 1px solid #334155;
+      font-size: 0.85rem;
     }
-    input, textarea, button, select {
-      background: #000; 
-      border: 1px solid #008833; 
-      color: #00ff66;
-      font-family: 'Courier New', Courier, monospace; 
-      padding: 10px; 
-      border-radius: 4px; 
-      width: 100%; 
-      box-sizing: border-box; 
-      margin-top: 6px;
+    .drawer select, .drawer input {
+      background: #0f172a; border: 1px solid #475569; color: #00ff66; padding: 8px; border-radius: 6px; width: 100%; outline: none;
+    }
+    .drawer button { background: #22c55e; color: #000; font-weight: bold; padding: 8px; border-radius: 6px; border: none; cursor: pointer; }
+
+    /* Chat Body */
+    .chat-container {
+      flex: 1;
+      padding: 12px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .bubble {
+      max-width: 80%;
+      padding: 10px 14px;
+      border-radius: 16px;
+      font-size: 0.95rem;
+      line-height: 1.4;
+      word-break: break-word;
+      position: relative;
+    }
+    .bubble.me {
+      align-self: flex-end;
+      background: #15803d;
+      color: #fff;
+      border-bottom-right-radius: 4px;
+    }
+    .bubble.them {
+      align-self: flex-start;
+      background: #1e293b;
+      color: #f1f5f9;
+      border-bottom-left-radius: 4px;
+      border: 1px solid #334155;
+    }
+    .bubble .time { font-size: 0.65rem; opacity: 0.7; margin-top: 4px; text-align: right; display: block; }
+
+    /* Special Gift Request Card in Chat */
+    .gift-card {
+      background: #2e1065;
+      border: 1px solid #a855f7;
+      border-radius: 12px;
+      padding: 12px;
+      width: 240px;
+      box-shadow: 0 4px 12px rgba(168, 85, 247, 0.2);
+    }
+    .gift-title { font-weight: bold; color: #e9d5ff; font-size: 0.9rem; margin-bottom: 4px; }
+    .gift-item { font-size: 1.1rem; color: #fff; font-weight: bold; margin: 6px 0; background: rgba(0,0,0,0.3); padding: 6px 10px; border-radius: 6px; text-align: center; }
+    .btn-ack-gift { background: #a855f7; color: #fff; border: none; padding: 6px; width: 100%; border-radius: 6px; font-weight: bold; margin-top: 6px; cursor: pointer; }
+
+    /* Quick Toolbar */
+    .quick-bar {
+      display: flex;
+      gap: 6px;
+      padding: 8px 12px;
+      background: #0f172a;
+      overflow-x: auto;
+      border-top: 1px solid #1e293b;
+    }
+    .btn-quick {
+      background: #1e293b;
+      color: #38bdf8;
+      border: 1px solid #334155;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    .btn-quick.alert { color: #f43f5e; border-color: #881337; }
+
+    /* Input Footer */
+    .chat-footer {
+      display: flex;
+      padding: 10px 12px;
+      background: #151c2c;
+      gap: 8px;
+      align-items: center;
+    }
+    .chat-footer input {
+      flex: 1;
+      background: #0f172a;
+      border: 1px solid #334155;
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: 20px;
       outline: none;
-    }
-    input:focus, textarea:focus, select:focus {
-      border-color: #00ff66;
-      box-shadow: 0 0 5px rgba(0, 255, 102, 0.5);
-    }
-    button { 
-      background: #00ff66; 
-      color: #000; 
-      font-weight: bold; 
-      cursor: pointer; 
-      margin-top: 8px; 
-      border: none;
-      transition: all 0.2s;
-    }
-    button:hover { background: #00cc52; }
-    button:active { transform: scale(0.98); }
-    .btn-danger { background: #ff3333; color: #fff; }
-    .btn-danger:hover { background: #cc0000; }
-    
-    /* Pop-up Overlay */
-    .overlay {
-      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.85); justify-content: center; align-items: center; z-index: 999;
-      backdrop-filter: blur(2px);
-    }
-    .popup-dialog {
-      background: #0d0d0d; border: 2px solid #00ff66; box-shadow: 0 0 20px rgba(0,255,102,0.4);
-      padding: 18px; width: 90%; max-width: 420px; border-radius: 8px;
-      animation: popIn 0.2s ease-out;
-    }
-    @keyframes popIn {
-      from { transform: scale(0.8); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
-    }
-    .meta-row { color: #008833; font-size: 11px; margin: 4px 0; }
-    .meta-val { color: #e0e0e0; }
-    .payload-box { 
-      background: #000; 
-      border: 1px solid #008833; 
-      padding: 12px; 
-      color: #fff; 
-      margin-top: 8px; 
-      word-break: break-word; 
-      white-space: pre-wrap;
       font-size: 0.95rem;
     }
-    #status { transition: color 0.3s; }
+    .btn-send {
+      background: #22c55e;
+      color: #000;
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Modal for Request Item */
+    .modal {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 1000;
+    }
+    .modal-box { background: #1e293b; padding: 20px; border-radius: 12px; width: 85%; max-width: 320px; border: 1px solid #a855f7; }
+    .modal-box h3 { color: #e9d5ff; font-size: 1.1rem; margin-bottom: 12px; }
+    .modal-box input { width: 100%; padding: 10px; background: #0f172a; border: 1px solid #475569; color: #fff; border-radius: 6px; margin-bottom: 12px; }
+    .modal-box button { width: 100%; padding: 10px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; margin-top: 4px; }
   </style>
 </head>
 <body>
 
-  <h2>📟 CAT P2P LINK v2.0 (STABLE)</h2>
+  <!-- Header -->
+  <header>
+    <div class="header-info">
+      <div id="dot" class="status-dot"></div>
+      <div>
+        <div class="chat-title">🐾 CAT P2P CHAT</div>
+        <div id="status-text" style="font-size: 0.7rem; color: #94a3b8;">Offline</div>
+      </div>
+    </div>
+    <button class="btn-icon" onclick="toggleDrawer()">⚙️</button>
+  </header>
 
-  <!-- ส่วนที่ 1: ล็อกอินสลับตัวละคร & รหัสผ่านร่วม -->
-  <div class="card">
-    <div>1. เลือกตัวละครของคุณ:</div>
+  <!-- Drawer ตั้งค่าล็อกอิน (ซ่อนไว้กดเปิดได้) -->
+  <div id="drawer" class="drawer">
+    <div>ตัวละครของคุณ:</div>
     <select id="role-select" onchange="initPeer()">
-      <option value="Sechuan">🐱 ผมคือ: แมวเฉาก๊วย</option>
+      <option value="Sechuan">🐱 ผมคือ: แมวเสฉวน</option>
       <option value="KaiToun">😸 ผมคือ: แมวไข่ตุ๋น</option>
     </select>
-    
-    <div style="margin-top: 8px;">2. รหัสผ่านลับเข้าห้องร่วมกัน (Shared Secret Key):</div>
-    <input type="password" id="secret-key" value="cat-love-2026" placeholder="ใส่รหัสผ่านเดียวกันทั้งคู่">
-    <button onclick="initPeer()">AUTHENTICATE & CONNECT P2P</button>
-    <div id="status" style="font-size: 11px; color: #ff9900; margin-top: 6px; font-weight: bold;">STATUS: OFFLINE</div>
+    <div>รหัสลับเข้าห้อง:</div>
+    <input type="password" id="secret-key" value="cat-love-2026">
+    <button onclick="initPeer(); toggleDrawer();">เชื่อมต่อ P2P</button>
   </div>
 
-  <!-- ส่วนที่ 2: ฟังก์ชันพิเศษ (พิกัด & ฟังเสียง) -->
-  <div class="card">
-    <div>SPECIAL PERMISSIONS & SENSORS</div>
-    <div style="display: flex; gap: 8px;">
-      <button onclick="requestLocation()">📍 ขอพิกัด GPS แฟน</button>
-      <button class="btn-danger" onclick="requestAudioStream()">🎙️ ฟังเสียงไมค์</button>
-    </div>
-    <audio id="remote-audio" autoplay></audio>
-  </div>
-
-  <!-- ส่วนที่ 3: ส่งข้อความ Terminal -->
-  <div class="card">
-    <div>PAYLOAD MESSAGE:</div>
-    <textarea id="msg-input" rows="2">แมวไข่ตุ๋นหิวข้าวแล้ว!</textarea>
-    <button onclick="sendP2PMessage()">EXECUTE SIGNAL (ส่งป๊อปอัป)</button>
-  </div>
-
-  <!-- POP-UP TERMINAL DIALOG -->
-  <div id="popup-overlay" class="overlay">
-    <div class="popup-dialog">
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <span style="font-weight:bold; color:#00ff66;">[SYSTEM NOTIFICATION]</span>
-        <span style="cursor:pointer; color:#ff3333; font-weight:bold;" onclick="closePopup()">[X]</span>
-      </div>
-      <div style="color:#008833; font-size:10px;">──────────────────────────────────</div>
-      
-      <div class="meta-row">TIMESTAMP : <span class="meta-val" id="pop-time"></span></div>
-      <div class="meta-row">SOURCE    : <span class="meta-val" id="pop-sender"></span></div>
-      <div class="meta-row">TARGET    : <span class="meta-val" id="pop-receiver"></span></div>
-      <div class="meta-row">STATUS    : <span class="meta-val">200 OK (P2P_DIRECT)</span></div>
-      
-      <div style="color:#008833; font-size:10px;">──────────────────────────────────</div>
-      <div style="font-size:11px; margin-top:8px; color:#008833;">> INCOMING PAYLOAD:</div>
-      <div class="payload-box" id="pop-msg"></div>
-
-      <button style="margin-top:15px;" onclick="closePopup()">[ ACKNOWLEDGE / ACK ]</button>
+  <!-- Area แสดงข้อความแชต -->
+  <div class="chat-container" id="chat-box">
+    <div style="text-align: center; color: #64748b; font-size: 0.75rem; margin: 10px 0;">
+      🔒 เข้ารหัสแบบ P2P ตรงระหว่างสองเครื่อง ไม่ผ่านเซิร์ฟเวอร์
     </div>
   </div>
+
+  <!-- Quick Action Toolbar -->
+  <div class="quick-bar">
+    <button class="btn-quick alert" onclick="sendQuickAlert()">🍚 แจ้งหิวข้าว!</button>
+    <button class="btn-quick" style="color: #a855f7; border-color: #a855f7;" onclick="openGiftModal()">🎁 ขอของแฟน</button>
+    <button class="btn-quick" onclick="requestLocation()">📍 ขอพิกัด</button>
+    <button class="btn-quick alert" onclick="requestAudioStream()">🎙️ ฟังเสียงไมค์</button>
+  </div>
+
+  <!-- Input Bar -->
+  <div class="chat-footer">
+    <input type="text" id="msg-input" placeholder="พิมพ์ข้อความ..." onkeypress="if(event.key==='Enter') sendText();">
+    <button class="btn-send" onclick="sendText()">➔</button>
+  </div>
+
+  <!-- Modal ขอของ -->
+  <div id="gift-modal" class="modal">
+    <div class="modal-box">
+      <h3>🎁 ขอของจากแฟน</h3>
+      <input type="text" id="gift-name" placeholder="เช่น ชานมไข่มุก, ขนม, สกินเกม">
+      <button style="background: #a855f7; color: #fff;" onclick="sendGiftRequest()">ส่งคำขอของ</button>
+      <button style="background: transparent; color: #94a3b8;" onclick="closeGiftModal()">ยกเลิก</button>
+    </div>
+  </div>
+
+  <audio id="remote-audio" autoplay></audio>
 
   <script>
-    let peer = null;
-    let conn = null;
-    let myRole = "";
-    let targetRole = "";
-    
-    // Web Audio API สำหรับเสียงแจ้งเตือน
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    function playAlertSound() {
-      if (audioCtx.state === 'suspended') audioCtx.resume();
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = 'square';
-      osc.frequency.setValueAtTime(880, audioCtx.currentTime); // เสียง Beep ความถี่สูง
-      osc.frequency.exponentialRampToValueAtTime(440, audioCtx.currentTime + 0.15);
-      gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start();
-      osc.stop(audioCtx.currentTime + 0.15);
+    let peer = null, conn = null, myRole = "", targetRole = "";
+
+    function toggleDrawer() {
+      const d = document.getElementById('drawer');
+      d.style.display = (d.style.display === 'flex') ? 'none' : 'flex';
     }
 
-    function updateStatus(text, color = '#ff9900') {
-      const statusElem = document.getElementById('status');
-      statusElem.innerText = `STATUS: ${text}`;
-      statusElem.style.color = color;
+    function getTime() {
+      return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     }
 
     function initPeer() {
       const secret = document.getElementById('secret-key').value.trim();
       myRole = document.getElementById('role-select').value;
-      
-      if (!secret) return alert('กรุณาใส่รหัสผ่านลับร่วมกันครับ');
-
       targetRole = (myRole === "Sechuan") ? "KaiToun" : "Sechuan";
-      
-      const myPeerId = `${secret}-${myRole}`;
-      const targetPeerId = `${secret}-${targetRole}`;
+
+      if (!secret) return alert("กรุณาใส่รหัสผ่านลับ");
 
       if (peer) peer.destroy();
 
-      // สร้าง Peer Object พร้อมเซิร์ฟเวอร์ STUN สาธารณะเพื่อเจาะ NAT
-      peer = new Peer(myPeerId, {
-        config: {
-          iceServers: [
-            { urls: 'stun:stun.l.google.com:19302' },
-            { urls: 'stun:global.stun.twilio.com:3478' }
-          ]
-        }
+      peer = new Peer(`${secret}-${myRole}`, {
+        config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
       });
 
-      peer.on('open', (id) => {
-        updateStatus(`ONLINE (ID: ${myRole}) - กำลังค้นหาคู่สาย...`, '#00ff66');
-        connectToTarget(targetPeerId);
+      peer.on('open', () => {
+        document.getElementById('status-text').innerText = `Online (${myRole})`;
+        document.getElementById('dot').className = "status-dot online";
+        connectTarget(`${secret}-${targetRole}`);
       });
 
-      // รับการเชื่อมต่อ Data จากอีกฝั่ง
-      peer.on('connection', (connection) => {
-        conn = connection;
-        setupDataListener();
-      });
-
-      // รับการเชื่อมต่อ Stream เสียง
+      peer.on('connection', (c) => { conn = c; setupListener(); });
+      
       peer.on('call', (call) => {
-        navigator.mediaDevices.getUserMedia({ audio: true })
-          .then((stream) => {
-            call.answer(stream);
-          })
-          .catch((err) => {
-            // กรณีไม่มีไมค์หรือไม่ให้อนุญาต ให้ส่ง Stream ว่างไปตอบรับ
-            call.answer();
-          });
-      });
-
-      peer.on('error', (err) => {
-        if (err.type === 'unavailable-id') {
-          updateStatus(`ONLINE (กำลังรอ ${targetRole} เชื่อมต่อเข้า...).`, '#00ff66');
-        } else {
-          updateStatus(`ERROR: ${err.type}`, '#ff3333');
-        }
+        navigator.mediaDevices.getUserMedia({ audio: true }).then(s => call.answer(s)).catch(() => call.answer());
       });
     }
 
-    function connectToTarget(targetPeerId) {
-      if (!peer || peer.destroyed) return;
-      conn = peer.connect(targetPeerId, { reliable: true });
-      setupDataListener();
+    function connectTarget(targetId) {
+      if (!peer) return;
+      conn = peer.connect(targetId, { reliable: true });
+      setupListener();
     }
 
-    function setupDataListener() {
+    function setupListener() {
       if (!conn) return;
-
       conn.on('open', () => {
-        updateStatus(`CONNECTED TO [${targetRole}]!`, '#00ff66');
+        document.getElementById('status-text').innerText = `คุยกับ [${targetRole}] อยู่`;
       });
 
       conn.on('data', (data) => {
-        if (data.type === 'MESSAGE') {
-          showPopup(data.sender, data.receiver, data.message, data.timestamp);
-        } else if (data.type === 'REQ_LOCATION') {
-          // สั่งดึง GPS แล้วตอบกลับ
-          if ("geolocation" in navigator) {
-            navigator.geolocation.getCurrentPosition(
-              (pos) => {
-                conn.send({
-                  type: 'RESP_LOCATION',
-                  lat: pos.coords.latitude,
-                  lng: pos.coords.longitude
-                });
-              },
-              (err) => {
-                conn.send({
-                  type: 'RESP_LOCATION_ERR',
-                  msg: err.message
-                });
-              },
-              { enableHighAccuracy: true, timeout: 10000 }
-            );
-          }
-        } else if (data.type === 'RESP_LOCATION') {
-          alert(`📍 พิกัดปัจจุบันของ ${targetRole}:\nLat: ${data.lat}\nLng: ${data.lng}\n\nGoogle Maps:\nhttps://maps.google.com/?q=${data.lat},${data.lng}`);
-        } else if (data.type === 'RESP_LOCATION_ERR') {
-          alert(`❌ ไม่สามารถดึงพิกัดจาก ${targetRole} ได้: ${data.msg}`);
-        }
-      });
-
-      conn.on('close', () => {
-        updateStatus(`DISCONNECTED FROM [${targetRole}]. กำลังพยายามต่อใหม่...`, '#ff9900');
+        if (data.type === 'TEXT') appendBubble(data.text, 'them', data.time);
+        else if (data.type === 'GIFT') appendGiftBubble(data.item, 'them', data.time);
+        else if (data.type === 'GIFT_ACK') alert(`🎉 ${targetRole} กดสัญญาว่าจะซื้อ "${data.item}" ให้คุณแล้ว!`);
+        else if (data.type === 'REQ_LOCATION') handleLocationRequest();
+        else if (data.type === 'RESP_LOCATION') alert(`📍 พิกัดแฟน:\nhttps://maps.google.com/?q=${data.lat},${data.lng}`);
       });
     }
 
-    // ยิงข้อความ Pop-up P2P
-    function sendP2PMessage() {
-      if (!conn || !conn.open) return alert('ยังไม่ได้เชื่อมต่อกับอีกฝั่ง กรุณารอให้อีกฝั่งกด AUTHENTICATE หรือเช็กการเชื่อมต่อครับ');
+    function sendText() {
+      const input = document.getElementById('msg-input');
+      const text = input.value.trim();
+      if (!text || !conn || !conn.open) return alert("ยังไม่ได้เชื่อมต่อกับอีกฝั่งครับ (กด ⚙️ เพื่อเช็กรหัส)");
+
+      const time = getTime();
+      conn.send({ type: 'TEXT', text, time });
+      appendBubble(text, 'me', time);
+      input.value = '';
+    }
+
+    function appendBubble(text, side, time) {
+      const box = document.getElementById('chat-box');
+      const div = document.createElement('div');
+      div.className = `bubble ${side}`;
+      div.innerHTML = `<div>${escapeHTML(text)}</div><span class="time">${time}</span>`;
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    // ฟังก์ชันขอของ
+    function openGiftModal() { document.getElementById('gift-modal').style.display = 'flex'; }
+    function closeGiftModal() { document.getElementById('gift-modal').style.display = 'none'; }
+
+    function sendGiftRequest() {
+      const item = document.getElementById('gift-name').value.trim();
+      if (!item || !conn || !conn.open) return alert("กรุณาใส่ชื่อของที่อยากได้ หรือเช็กการเชื่อมต่อ");
+
+      const time = getTime();
+      conn.send({ type: 'GIFT', item, time });
+      appendGiftBubble(item, 'me', time);
+      closeGiftModal();
+      document.getElementById('gift-name').value = '';
+    }
+
+    function appendGiftBubble(item, side, time) {
+      const box = document.getElementById('chat-box');
+      const div = document.createElement('div');
+      div.style.alignSelf = (side === 'me') ? 'flex-end' : 'flex-start';
       
-      const msg = document.getElementById('msg-input').value.trim();
-      if (!msg) return alert('กรุณาใส่ข้อความก่อนส่งครับ');
-
-      const now = new Date();
-      const timeStr = `${now.toISOString().split('T')[0]} | ${now.toTimeString().split(' ')[0]}`;
-
-      const payload = {
-        type: 'MESSAGE',
-        sender: `DEV/${myRole.toUpperCase()}`,
-        receiver: `DEV/${targetRole.toUpperCase()}`,
-        message: msg,
-        timestamp: timeStr
-      };
-
-      conn.send(payload);
-      alert('ส่งสัญญาณ P2P สำเร็จ!');
+      const isThem = (side === 'them');
+      div.innerHTML = `
+        <div class="gift-card">
+          <div class="gift-title">🎁 ${side === 'me' ? 'คุณส่งคำขอของ' : 'แฟนส่งคำขอของ'}</div>
+          <div class="gift-item">${escapeHTML(item)}</div>
+          ${isThem ? `<button class="btn-ack-gift" onclick="ackGift('${escapeHTML(item)}')">❤️ ตกลง ซื้อให้!</button>` : '<div style="font-size:0.7rem; color:#a855f7; text-align:center;">รอแฟนกดตกลง...</div>'}
+        </div>
+      `;
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
     }
 
-    // ฟังก์ชันขอพิกัด GPS
-    function requestLocation() {
-      if (!conn || !conn.open) return alert('ยังไม่ได้เชื่อมต่อกับอีกฝั่ง');
-      conn.send({ type: 'REQ_LOCATION' });
-      alert('ส่งคำขอพิกัด GPS ไปยังอีกฝั่งแล้ว...');
-    }
-
-    // ฟังก์ชันเปิดไมค์ฟังเสียง
-    function requestAudioStream() {
-      if (!peer || peer.destroyed) return alert('กรุณา AUTHENTICATE ก่อนครับ');
-      const targetPeerId = `${document.getElementById('secret-key').value.trim()}-${targetRole}`;
-      
-      navigator.mediaDevices.getUserMedia({ audio: true })
-        .then((stream) => {
-          const call = peer.call(targetPeerId, stream);
-          call.on('stream', (remoteStream) => {
-            const audioElem = document.getElementById('remote-audio');
-            audioElem.srcObject = remoteStream;
-            audioElem.play();
-            alert(`🎙️ กำลังรับสัญญาณเสียงจาก [${targetRole}]...`);
-          });
-        })
-        .catch((err) => {
-          alert('ไม่สามารถเข้าถึงไมโครโฟนได้: ' + err.message);
-        });
-    }
-
-    function showPopup(sender, receiver, msg, time) {
-      document.getElementById('pop-sender').innerText = sender;
-      document.getElementById('pop-receiver').innerText = receiver;
-      document.getElementById('pop-msg').innerText = msg;
-      document.getElementById('pop-time').innerText = time + ' (+0700)';
-      document.getElementById('popup-overlay').style.display = 'flex';
-
-      // เสียงเตือน + สั่นเครื่อง
-      playAlertSound();
-      if ("vibrate" in navigator) {
-        navigator.vibrate([200, 100, 200]);
+    function ackGift(item) {
+      if (conn && conn.open) {
+        conn.send({ type: 'GIFT_ACK', item });
+        alert(`ส่งคำตอบรับเรียบร้อย! คุณสัญญาว่าจะซื้อ ${item} ให้แฟนแล้ว ❤️`);
       }
     }
 
-    function closePopup() {
-      document.getElementById('popup-overlay').style.display = 'none';
+    function sendQuickAlert() {
+      const input = document.getElementById('msg-input');
+      input.value = "🍚 แมวหิวข้าวแล้วนะ!";
+      sendText();
+    }
+
+    function requestLocation() {
+      if (!conn || !conn.open) return alert("ยังไม่เชื่อมต่อ");
+      conn.send({ type: 'REQ_LOCATION' });
+      alert("ส่งคำขอพิกัดเรียบร้อย");
+    }
+
+    function handleLocationRequest() {
+      navigator.geolocation.getCurrentPosition(pos => {
+        conn.send({ type: 'RESP_LOCATION', lat: pos.coords.latitude, lng: pos.coords.longitude });
+      });
+    }
+
+    function requestAudioStream() {
+      if (!peer) return alert("กรุณาต่อ P2P ก่อน");
+      const secret = document.getElementById('secret-key').value.trim();
+      navigator.mediaDevices.getUserMedia({ audio: true }).then(s => {
+        const call = peer.call(`${secret}-${targetRole}`, s);
+        call.on('stream', rs => {
+          document.getElementById('remote-audio').srcObject = rs;
+          alert("🎙️ ฟังเสียงไมค์ฝั่งตรงข้ามแล้ว");
+        });
+      });
+    }
+
+    function escapeHTML(str) {
+      return str.replace(/[&<>'"]/g, tag => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[tag]||tag));
     }
   </script>
 </body>
