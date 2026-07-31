@@ -1,444 +1,1287 @@
-
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Cat P2P Couple Chat v4.0</title>
-  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-    body { background-color: #0d1117; color: #e6edf3; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💕 ของเรา - Couple Chat</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    /* Header */
-    header {
-      background: #161b22;
-      padding: 10px 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid #30363d;
-      z-index: 10;
-    }
-    .header-info { display: flex; align-items: center; gap: 10px; }
-    .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #f85149; }
-    .status-dot.online { background: #3fb950; box-shadow: 0 0 8px #3fb950; }
-    .chat-title { font-weight: bold; font-size: 0.95rem; color: #f0f6fc; }
-    .mood-tag { font-size: 0.75rem; color: #a5d6ff; background: rgba(56, 139, 253, 0.15); padding: 2px 6px; border-radius: 10px; }
-    .btn-icon { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #8b949e; padding: 4px; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: linear-gradient(135deg, #FDF6F3 0%, #FFF9F7 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+        }
 
-    /* Drawer ตั้งค่า & Permissions */
-    .drawer {
-      background: #161b22;
-      padding: 14px;
-      display: none;
-      flex-direction: column;
-      gap: 10px;
-      border-bottom: 1px solid #30363d;
-      font-size: 0.85rem;
-      max-height: 80vh;
-      overflow-y: auto;
-    }
-    .drawer select, .drawer input[type="text"], .drawer input[type="password"], .drawer input[type="date"] {
-      background: #0d1117; border: 1px solid #30363d; color: #3fb950; padding: 8px; border-radius: 6px; width: 100%; outline: none;
-    }
-    .toggle-row { display: flex; justify-content: space-between; align-items: center; background: #21262d; padding: 8px 12px; border-radius: 6px; }
-    .drawer button { background: #238636; color: #fff; font-weight: bold; padding: 10px; border-radius: 6px; border: none; cursor: pointer; margin-top: 4px; }
+        .container {
+            width: 100%;
+            max-width: 500px;
+            height: 100vh;
+            max-height: 800px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
 
-    /* Days Counter Banner */
-    .days-banner { background: linear-gradient(90deg, #7c3aed, #db2777); text-align: center; padding: 6px; font-size: 0.75rem; font-weight: bold; color: #fff; }
+        /* Login Screen */
+        .login-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #FDF6F3 0%, #FFF9F7 100%);
+            min-height: 100%;
+        }
 
-    /* Chat Area */
-    .chat-container {
-      flex: 1;
-      padding: 12px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      background: #0d1117;
-    }
-    .bubble {
-      max-width: 80%;
-      padding: 10px 14px;
-      border-radius: 16px;
-      font-size: 0.95rem;
-      line-height: 1.4;
-      word-break: break-word;
-      position: relative;
-    }
-    .bubble.me { align-self: flex-end; background: #238636; color: #fff; border-bottom-right-radius: 4px; }
-    .bubble.them { align-self: flex-start; background: #21262d; color: #c9d1d9; border-bottom-left-radius: 4px; border: 1px solid #30363d; }
-    .bubble.pending { opacity: 0.7; border: 1px dashed #e3b341; }
-    .bubble .meta { font-size: 0.65rem; opacity: 0.75; margin-top: 4px; text-align: right; display: flex; justify-content: flex-end; gap: 4px; align-items: center; }
+        .login-screen.hidden {
+            display: none;
+        }
 
-    /* Gift Request Card */
-    .gift-card { background: #2e1065; border: 1px solid #a855f7; border-radius: 12px; padding: 12px; width: 220px; }
-    .gift-title { font-weight: bold; color: #e9d5ff; font-size: 0.85rem; }
-    .gift-item { font-size: 1rem; color: #fff; font-weight: bold; margin: 6px 0; background: rgba(0,0,0,0.3); padding: 6px; border-radius: 6px; text-align: center; }
-    .btn-ack-gift { background: #a855f7; color: #fff; border: none; padding: 6px; width: 100%; border-radius: 6px; font-weight: bold; margin-top: 6px; cursor: pointer; }
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 107, 107, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            margin-bottom: 30px;
+        }
 
-    /* Quick Toolbar */
-    .quick-bar { display: flex; gap: 6px; padding: 8px 12px; background: #161b22; overflow-x: auto; border-top: 1px solid #21262d; }
-    .btn-quick { background: #21262d; color: #58a6ff; border: 1px solid #30363d; padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; white-space: nowrap; cursor: pointer; }
-    .btn-quick.alert { color: #f85149; border-color: #8e1519; }
+        .login-title {
+            font-size: 32px;
+            font-weight: bold;
+            color: #2C3E50;
+            margin-bottom: 10px;
+            text-align: center;
+        }
 
-    /* Input Footer */
-    .chat-footer { display: flex; padding: 10px 12px; background: #161b22; gap: 8px; align-items: center; border-top: 1px solid #30363d; }
-    .chat-footer input {
-      flex: 1; background: #0d1117; border: 1px solid #30363d; color: #fff; padding: 10px 14px; border-radius: 20px; outline: none; font-size: 0.95rem;
-    }
-    .chat-footer input:focus { border-color: #58a6ff; }
-    .btn-send { background: #238636; color: #fff; border: none; width: 40px; height: 40px; border-radius: 50%; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .login-subtitle {
+            font-size: 14px;
+            color: #999;
+            margin-bottom: 40px;
+            text-align: center;
+        }
 
-    /* Floating Hearts Container */
-    #heart-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; }
-    .floating-heart { position: absolute; font-size: 2rem; animation: floatUp 2s ease-out forwards; }
-    @keyframes floatUp {
-      0% { transform: translateY(100vh) scale(0.5); opacity: 1; }
-      100% { transform: translateY(-10vh) scale(1.5); opacity: 0; }
-    }
+        .login-form {
+            width: 100%;
+            max-width: 300px;
+            background: #FFF9F7;
+            border: 1px solid #F0E8E5;
+            border-radius: 15px;
+            padding: 25px;
+            space-y: 15px;
+        }
 
-    /* Modal ขอของ */
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 1000; }
-    .modal-box { background: #161b22; padding: 20px; border-radius: 12px; width: 85%; max-width: 320px; border: 1px solid #a855f7; }
-    .modal-box h3 { color: #e9d5ff; font-size: 1rem; margin-bottom: 10px; }
-    .modal-box input { width: 100%; padding: 10px; background: #0d1117; border: 1px solid #30363d; color: #fff; border-radius: 6px; margin-bottom: 10px; }
-    .modal-box button { width: 100%; padding: 10px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; margin-top: 4px; }
-  </style>
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #2C3E50;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #F0E8E5;
+            border-radius: 10px;
+            font-size: 16px;
+            text-align: center;
+            letter-spacing: 2px;
+            font-weight: bold;
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #FF6B6B;
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: #FF6B6B;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .login-btn:hover:not(:disabled) {
+            background: #FF5555;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .login-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .login-info {
+            font-size: 12px;
+            color: #999;
+            text-align: center;
+            margin-top: 30px;
+            line-height: 1.6;
+        }
+
+        /* Chat Screen */
+        .chat-screen {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .chat-screen.hidden {
+            display: none;
+        }
+
+        /* Header */
+        .chat-header {
+            background: linear-gradient(135deg, #FFF9F7 0%, #FFE8E8 100%);
+            border-bottom: 1px solid #F0E8E5;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-avatar {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 107, 107, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .header-info h2 {
+            font-size: 16px;
+            color: #2C3E50;
+            margin: 0;
+        }
+
+        .header-info p {
+            font-size: 12px;
+            color: #999;
+            margin: 0;
+        }
+
+        .online-badge {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #4CAF50;
+            border-radius: 50%;
+            margin-right: 5px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .header-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: rgba(255, 107, 107, 0.1);
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .header-btn:hover {
+            background: rgba(255, 107, 107, 0.2);
+            transform: scale(1.1);
+        }
+
+        /* Messages Area */
+        .messages-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: linear-gradient(to bottom, #FFFFFF 0%, #FDF6F3 100%);
+        }
+
+        .message {
+            display: flex;
+            margin-bottom: 8px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.sent {
+            justify-content: flex-end;
+        }
+
+        .message-bubble {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            word-wrap: break-word;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .message.received .message-bubble {
+            background: #F0E8E5;
+            color: #2C3E50;
+            border-bottom-left-radius: 4px;
+        }
+
+        .message.sent .message-bubble {
+            background: #FF6B6B;
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message-image {
+            max-width: 100%;
+            border-radius: 12px;
+            margin-top: 5px;
+        }
+
+        .message-time {
+            font-size: 11px;
+            opacity: 0.7;
+            margin-top: 3px;
+        }
+
+        .message-actions {
+            display: flex;
+            gap: 5px;
+            margin-top: 5px;
+        }
+
+        .message-action-btn {
+            width: 24px;
+            height: 24px;
+            border: none;
+            background: rgba(255,255,255,0.3);
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .message-action-btn:hover {
+            background: rgba(255,255,255,0.5);
+            transform: scale(1.1);
+        }
+
+        /* Input Area */
+        .input-area {
+            background: white;
+            border-top: 1px solid #F0E8E5;
+            padding: 15px 20px;
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .input-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: rgba(255, 107, 107, 0.1);
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 107, 107, 0.2);
+            transform: scale(1.1);
+        }
+
+        .action-btn:active {
+            transform: scale(0.95);
+        }
+
+        .input-field {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid #F0E8E5;
+            border-radius: 20px;
+            font-size: 14px;
+            resize: none;
+            max-height: 100px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #FF6B6B;
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+        }
+
+        .send-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: #FF6B6B;
+            color: white;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .send-btn:hover {
+            background: #FF5555;
+            transform: scale(1.1);
+        }
+
+        .send-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Modals */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            max-width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2C3E50;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .saved-item {
+            background: #FFF9F7;
+            border: 1px solid #F0E8E5;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .saved-item-text {
+            flex: 1;
+            font-size: 14px;
+            color: #2C3E50;
+            line-height: 1.4;
+        }
+
+        .saved-item-time {
+            font-size: 12px;
+            color: #999;
+            white-space: nowrap;
+        }
+
+        .delete-btn {
+            background: #FF6B6B;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 5px 10px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .delete-btn:hover {
+            background: #FF5555;
+        }
+
+        .date-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .form-input-text {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #F0E8E5;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .form-input-text:focus {
+            outline: none;
+            border-color: #FF6B6B;
+        }
+
+        .add-btn {
+            background: #FF6B6B;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .add-btn:hover {
+            background: #FF5555;
+            transform: translateY(-2px);
+        }
+
+        .date-item {
+            background: #FFF9F7;
+            border: 1px solid #F0E8E5;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .date-info {
+            flex: 1;
+        }
+
+        .date-title {
+            font-weight: 600;
+            color: #2C3E50;
+            margin-bottom: 3px;
+        }
+
+        .date-date {
+            font-size: 13px;
+            color: #FF6B6B;
+            margin-bottom: 3px;
+        }
+
+        .date-desc {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .qr-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .qr-box {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #F0E8E5;
+        }
+
+        .qr-info {
+            text-align: center;
+            font-size: 13px;
+            color: #999;
+            line-height: 1.6;
+        }
+
+        .sync-status {
+            background: #E8F5E9;
+            border: 1px solid #4CAF50;
+            color: #2E7D32;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .sync-status.error {
+            background: #FFEBEE;
+            border-color: #FF6B6B;
+            color: #C62828;
+        }
+
+        /* Responsive */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #F0E8E5;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #E0D8D5;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .container {
+                max-height: 100vh;
+                border-radius: 0;
+            }
+
+            .message-bubble {
+                max-width: 85%;
+            }
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <!-- Login Screen -->
+        <div class="login-screen" id="loginScreen">
+            <div class="logo">💕</div>
+            <h1 class="login-title">ของเรา</h1>
+            <p class="login-subtitle">พื้นที่ส่วนตัวสำหรับสองคนเท่านั้น</p>
+            
+            <div class="login-form">
+                <div class="form-group">
+                    <label class="form-label">ใส่ PIN เข้าสู่ระบบ</label>
+                    <input 
+                        type="password" 
+                        id="pinInput" 
+                        class="form-input" 
+                        placeholder="••••" 
+                        maxlength="6"
+                    >
+                </div>
+                <button class="login-btn" id="loginBtn" onclick="handleLogin()">เข้าสู่ระบบ</button>
+            </div>
 
-  <div id="heart-container"></div>
-
-  <!-- Banner นับวันครบรอบ -->
-  <div class="days-banner" id="days-banner">💕 คบกันมาแล้ว 1ล้าน วัน</div>
-
-  <!-- Header -->
-  <header>
-    <div class="header-info">
-      <div id="dot" class="status-dot"></div>
-      <div>
-        <div class="chat-title">🐾 CAT P2P CHAT <span id="partner-mood" class="mood-tag">คิดถึง 💖</span></div>
-        <div id="status-text" style="font-size: 0.7rem; color: #8b949e;">Offline (ข้อความจะดองไว้นำส่งเมื่อต่อเน็ต)</div>
-      </div>
-    </div>
-    <button class="btn-icon" onclick="toggleDrawer()">⚙️</button>
-  </header>
-
-  <!-- Drawer ตั้งค่า & Permissions -->
-  <div id="drawer" class="drawer">
-    <div style="font-weight: bold; color: #58a6ff;">1. การเชื่อมต่อหลัก</div>
-    <div>ตัวละครของคุณ:</div>
-    <select id="role-select" onchange="initPeer()">
-      <option value="Sechuan">🐱 ผมคือ: แมวดี้</option>
-      <option value="KaiToun">😸 ผมคือ: แมวไข่ตุ๋น</option>
-    </select>
-    <div>รหัสลับเข้าห้อง:</div>
-    <input type="password" id="secret-key" value="cat-love-2026">
-    
-    <div style="font-weight: bold; color: #58a6ff; margin-top: 6px;">2. สิทธิ์ความยินยอม (Permissions)</div>
-    <div class="toggle-row">
-      <span>📍 ยินยอมให้แฟนขอพิกัด GPS</span>
-      <input type="checkbox" id="perm-gps" checked>
-    </div>
-    <div class="toggle-row">
-      <span>🎙️ ยินยอมให้แฟนฟังเสียงไมค์</span>
-      <input type="checkbox" id="perm-audio" checked>
-    </div>
-
-    <div style="font-weight: bold; color: #58a6ff; margin-top: 6px;">3. ลูกเล่นคู่รัก</div>
-    <div>ตั้งอารมณ์ของคุณ (Mood):</div>
-    <select id="my-mood" onchange="updateMyMood()">
-      <option value="คิดถึงมาก 💖">คิดถึงมาก 💖</option>
-      <option value="ทำงานอยู่นะ 💼">ทำงานอยู่นะ 💼</option>
-      <option value="กินข้าวอยู่ 🍔">กินข้าวอยู่ 🍔</option>
-      <option value="งอนแล้วนะ 😤">งอนแล้วนะ 😤</option>
-      <option value="ง่วงนอนแล้ว 😴">ง่วงนอนแล้ว 😴</option>
-    </select>
-    <div>วันที่เริ่มคบกัน:</div>
-    <input type="date" id="love-date" value="2026-01-01" onchange="calcLoveDays()">
-
-    <button onclick="initPeer(); toggleDrawer();">อัปเดต & เชื่อมต่อ P2P</button>
-  </div>
-
-  <!-- Area แชต -->
-  <div class="chat-container" id="chat-box">
-    <div style="text-align: center; color: #484f58; font-size: 0.75rem; margin: 10px 0;">
-      🔒 ระบบ P2P ตรงระหว่างสองเครื่อง (มีระบบฝากข้อความเมื่ออีกฝ่ายไม่ออน)
-    </div>
-  </div>
-
-  <!-- Quick Action Toolbar -->
-  <div class="quick-bar">
-    <button class="btn-quick" style="color:#ec4899; border-color:#ec4899;" onclick="sendHearts()">💖 ส่งหัวใจ</button>
-    <button class="btn-quick alert" onclick="sendQuickAlert()">🍚 แจ้งหิวข้าว!</button>
-    <button class="btn-quick" style="color: #a855f7; border-color: #a855f7;" onclick="openGiftModal()">🎁 ขอของแฟน</button>
-    <button class="btn-quick" onclick="requestLocation()">📍 ขอพิกัด</button>
-    <button class="btn-quick alert" onclick="requestAudioStream()">🎙️ ฟังเสียงไมค์</button>
-  </div>
-
-  <!-- Input Footer -->
-  <div class="chat-footer">
-    <input type="text" id="msg-input" placeholder="พิมพ์ข้อความ..." onkeypress="if(event.key==='Enter') sendText();" autocomplete="off">
-    <button class="btn-send" onclick="sendText()">➔</button>
-  </div>
-
-  <!-- Modal ขอของ -->
-  <div id="gift-modal" class="modal">
-    <div class="modal-box">
-      <h3>🎁 ขอของจากแฟน</h3>
-      <input type="text" id="gift-name" placeholder="เช่น ชานมไข่มุก, ขนม, สกินเกม">
-      <button style="background: #a855f7; color: #fff;" onclick="sendGiftRequest()">ส่งคำขอของ</button>
-      <button style="background: transparent; color: #8b949e;" onclick="closeGiftModal()">ยกเลิก</button>
-    </div>
-  </div>
-
-  <audio id="remote-audio" autoplay></audio>
-
-  <script>
-    let peer = null, conn = null, myRole = "", targetRole = "";
-    let outboxQueue = []; // กล่องฝากข้อความเวลาอีกฝ่ายไม่ออน
-
-    function toggleDrawer() {
-      const d = document.getElementById('drawer');
-      d.style.display = (d.style.display === 'flex') ? 'none' : 'flex';
-    }
-
-    function getTime() {
-      return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    }
-
-    function calcLoveDays() {
-      const startDate = new Date(document.getElementById('love-date').value);
-      const today = new Date();
-      const diffTime = Math.abs(today - startDate);
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      document.getElementById('days-banner').innerText = `💕 คบกันมาแล้ว ${diffDays} วัน`;
-    }
-
-    function initPeer() {
-      const secret = document.getElementById('secret-key').value.trim();
-      myRole = document.getElementById('role-select').value;
-      targetRole = (myRole === "Sechuan") ? "KaiToun" : "Sechuan";
-
-      if (!secret) return alert("กรุณาใส่รหัสผ่านลับ");
-
-      if (peer) peer.destroy();
-
-      peer = new Peer(`${secret}-${myRole}`, {
-        config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
-      });
-
-      peer.on('open', () => {
-        document.getElementById('status-text').innerText = `Online (${myRole})`;
-        document.getElementById('dot').className = "status-dot online";
-        connectTarget(`${secret}-${targetRole}`);
-      });
-
-      peer.on('connection', (c) => { conn = c; setupListener(); });
-      
-      peer.on('call', (call) => {
-        // เช็กสิทธิ์ว่ายินยอมให้ฟังเสียงไหม
-        const allowAudio = document.getElementById('perm-audio').checked;
-        if (allowAudio) {
-          navigator.mediaDevices.getUserMedia({ audio: true }).then(s => call.answer(s)).catch(() => call.answer());
-        } else {
-          alert("อีกฝ่ายพยายามขอฟังเสียงไมค์ แต่คุณปิดสิทธิ์ไว้ในระบบ");
-        }
-      });
-
-      calcLoveDays();
-    }
-
-    function connectTarget(targetId) {
-      if (!peer) return;
-      conn = peer.connect(targetId, { reliable: true });
-      setupListener();
-    }
-
-    function setupListener() {
-      if (!conn) return;
-
-      conn.on('open', () => {
-        document.getElementById('status-text').innerText = `คุยกับ [${targetRole}] อยู่`;
-        // ยิงสถานะอารมณ์ของเราไปบอกแฟน
-        updateMyMood();
-        // เคลียร์ข้อความดอง (Outbox Sync)
-        flushOutbox();
-      });
-
-      conn.on('data', (data) => {
-        if (data.type === 'TEXT') appendBubble(data.text, 'them', data.time);
-        else if (data.type === 'GIFT') appendGiftBubble(data.item, 'them', data.time);
-        else if (data.type === 'GIFT_ACK') alert(`🎉 ${targetRole} กดสัญญาว่าจะซื้อ "${data.item}" ให้คุณแล้ว!`);
-        else if (data.type === 'MOOD') document.getElementById('partner-mood').innerText = data.mood;
-        else if (data.type === 'HEARTS') triggerHeartAnimation();
-        else if (data.type === 'REQ_LOCATION') handleLocationRequest();
-        else if (data.type === 'RESP_LOCATION') alert(`📍 พิกัดแฟน:\nhttps://maps.google.com/?q=${data.lat},${data.lng}`);
-        else if (data.type === 'ERR_PERM') alert(`⚠️ ${data.msg}`);
-      });
-    }
-
-    // ระบบส่งข้อความ + เคลียร์แป้นพิมพ์ค้างไว้พร้อมพิมพ์ต่อ
-    function sendText() {
-      const input = document.getElementById('msg-input');
-      const text = input.value.trim();
-      if (!text) return;
-
-      const time = getTime();
-      const payload = { type: 'TEXT', text, time };
-
-      if (conn && conn.open) {
-        conn.send(payload);
-        appendBubble(text, 'me', time);
-      } else {
-        // ถ้าไม่ออน ให้ดองไว้ใน Outbox
-        outboxQueue.push(payload);
-        appendBubble(text, 'me', time, true); // true = pending status
-      }
-
-      input.value = '';
-      input.focus(); // แป้นพิมพ์พร้อมพิมพ์ต่อทันที
-    }
-
-    // ยิงข้อความค้างส่งเมื่อต่อเน็ตติด
-    function flushOutbox() {
-      if (outboxQueue.length > 0 && conn && conn.open) {
-        outboxQueue.forEach(payload => conn.send(payload));
-        outboxQueue = [];
-        // ปรับหน้าตาข้อความดองให้กลายเป็นส่งแล้ว
-        document.querySelectorAll('.bubble.pending').forEach(el => {
-          el.classList.remove('pending');
-          const meta = el.querySelector('.meta');
-          if (meta) meta.innerHTML = `${meta.innerText.replace('🕒', '')} ✓`;
-        });
-      }
-    }
-
-    function appendBubble(text, side, time, isPending = false) {
-      const box = document.getElementById('chat-box');
-      const div = document.createElement('div');
-      div.className = `bubble ${side} ${isPending ? 'pending' : ''}`;
-      div.innerHTML = `<div>${escapeHTML(text)}</div><span class="meta">${time} ${isPending ? '🕒 รอนำส่ง' : ''}</span>`;
-      box.appendChild(div);
-      box.scrollTop = box.scrollHeight;
-    }
-
-    // ตั้งสถานะอารมณ์
-    function updateMyMood() {
-      const mood = document.getElementById('my-mood').value;
-      if (conn && conn.open) {
-        conn.send({ type: 'MOOD', mood });
-      }
-    }
-
-    // เอฟเฟกต์ส่งหัวใจลอย
-    function sendHearts() {
-      if (conn && conn.open) conn.send({ type: 'HEARTS' });
-      triggerHeartAnimation();
-    }
-
-    function triggerHeartAnimation() {
-      const container = document.getElementById('heart-container');
-      for (let i = 0; i < 15; i++) {
-        setTimeout(() => {
-          const heart = document.createElement('div');
-          heart.className = 'floating-heart';
-          heart.innerText = ['💖', '💗', '💕', '❤️', '😻'][Math.floor(Math.random() * 5)];
-          heart.style.left = Math.random() * 90 + '%';
-          container.appendChild(heart);
-          setTimeout(() => heart.remove(), 2000);
-        }, i * 100);
-      }
-      if ("vibrate" in navigator) navigator.vibrate([100, 50, 100]);
-    }
-
-    // ขอของ
-    function openGiftModal() { document.getElementById('gift-modal').style.display = 'flex'; }
-    function closeGiftModal() { document.getElementById('gift-modal').style.display = 'none'; }
-
-    function sendGiftRequest() {
-      const item = document.getElementById('gift-name').value.trim();
-      if (!item) return;
-
-      const time = getTime();
-      const payload = { type: 'GIFT', item, time };
-
-      if (conn && conn.open) {
-        conn.send(payload);
-        appendGiftBubble(item, 'me', time);
-      } else {
-        outboxQueue.push(payload);
-        appendGiftBubble(item, 'me', time, true);
-      }
-
-      closeGiftModal();
-      document.getElementById('gift-name').value = '';
-    }
-
-    function appendGiftBubble(item, side, time, isPending = false) {
-      const box = document.getElementById('chat-box');
-      const div = document.createElement('div');
-      div.style.alignSelf = (side === 'me') ? 'flex-end' : 'flex-start';
-      
-      const isThem = (side === 'them');
-      div.innerHTML = `
-        <div class="gift-card">
-          <div class="gift-title">🎁 ${side === 'me' ? 'คุณส่งคำขอของ' : 'แฟนส่งคำขอของ'} ${isPending ? '(🕒 รอนำส่ง)' : ''}</div>
-          <div class="gift-item">${escapeHTML(item)}</div>
-          ${isThem ? `<button class="btn-ack-gift" onclick="ackGift('${escapeHTML(item)}')">❤️ ตกลง ซื้อให้!</button>` : '<div style="font-size:0.7rem; color:#a855f7; text-align:center;">รอแฟนตอบรับ...</div>'}
+            <div class="login-info">
+                <p>🔒 ข้อมูลของคุณปลอดภัยและเป็นส่วนตัว</p>
+                <p>💕 เฉพาะสองคนเท่านั้นที่สามารถเข้าถึงได้</p>
+            </div>
         </div>
-      `;
-      box.appendChild(div);
-      box.scrollTop = box.scrollHeight;
-    }
 
-    function ackGift(item) {
-      if (conn && conn.open) {
-        conn.send({ type: 'GIFT_ACK', item });
-        alert(`ส่งคำตอบรับเรียบร้อย! คุณสัญญาว่าจะซื้อ ${item} ให้แฟนแล้ว ❤️`);
-      }
-    }
+        <!-- Chat Screen -->
+        <div class="chat-screen hidden" id="chatScreen">
+            <!-- Header -->
+            <div class="chat-header">
+                <div class="header-left">
+                    <div class="header-avatar">💕</div>
+                    <div class="header-info">
+                        <h2>ของเรา</h2>
+                        <p><span class="online-badge"></span>Online</p>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="header-btn" onclick="openSavedMessages()" title="ข้อความที่เก็บไว้">❤️</button>
+                    <button class="header-btn" onclick="openImportantDates()" title="วันสำคัญ">📅</button>
+                    <button class="header-btn" onclick="openSettings()" title="ตั้งค่า">⚙️</button>
+                </div>
+            </div>
 
-    function sendQuickAlert() {
-      const input = document.getElementById('msg-input');
-      input.value = "🍚 แมวหิวข้าวแล้วนะ!";
-      sendText();
-    }
+            <!-- Messages Area -->
+            <div class="messages-area" id="messagesArea"></div>
 
-    function requestLocation() {
-      if (!conn || !conn.open) return alert("อีกฝ่ายยังไม่ออน");
-      conn.send({ type: 'REQ_LOCATION' });
-      alert("ส่งคำขอพิกัดเรียบร้อย");
-    }
+            <!-- Input Area -->
+            <div class="input-area">
+                <div class="input-actions">
+                    <button class="action-btn" onclick="triggerImageInput()" title="ส่งรูปภาพ">🖼️</button>
+                    <input type="file" id="imageInput" accept="image/*" style="display: none;" onchange="handleImageSelect()">
+                    <button class="action-btn" onclick="startVoiceNote()" id="voiceBtn" title="บันทึกเสียง">🎤</button>
+                </div>
+                <textarea 
+                    class="input-field" 
+                    id="messageInput" 
+                    placeholder="พิมพ์ข้อความ..." 
+                    rows="1"
+                ></textarea>
+                <button class="send-btn" onclick="sendMessage()" title="ส่ง">✈️</button>
+            </div>
+        </div>
+    </div>
 
-    function handleLocationRequest() {
-      const allowGPS = document.getElementById('perm-gps').checked;
-      if (allowGPS) {
-        navigator.geolocation.getCurrentPosition(pos => {
-          conn.send({ type: 'RESP_LOCATION', lat: pos.coords.latitude, lng: pos.coords.longitude });
+    <!-- Modals -->
+    <div class="modal" id="savedModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeSavedMessages()">✕</button>
+            <div class="modal-header">❤️ ข้อความที่เก็บไว้</div>
+            <div id="savedList"></div>
+        </div>
+    </div>
+
+    <div class="modal" id="datesModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeDates()">✕</button>
+            <div class="modal-header">📅 วันสำคัญ</div>
+            <div id="datesList"></div>
+            <div class="date-form">
+                <input type="text" id="dateTitle" class="form-input-text" placeholder="ชื่อวันสำคัญ" />
+                <input type="date" id="dateDate" class="form-input-text" />
+                <input type="text" id="dateDesc" class="form-input-text" placeholder="หมายเหตุ (ไม่บังคับ)" />
+                <button class="add-btn" onclick="addDate()">+ เพิ่มวันสำคัญ</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeSettings()">✕</button>
+            <div class="modal-header">⚙️ ตั้งค่า</div>
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <button class="add-btn" onclick="openQRSync()" style="background: #4CAF50;">🔗 ซิงค์ข้อมูล (QR Code)</button>
+                <button class="add-btn" onclick="clearAllData()" style="background: #FF6B6B;">🗑️ ลบข้อมูลทั้งหมด</button>
+                <button class="add-btn" onclick="logout()" style="background: #FF6B6B;">🚪 ออกจากระบบ</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="qrModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeQRSync()">✕</button>
+            <div class="modal-header">🔗 ซิงค์ข้อมูลกับแฟน</div>
+            
+            <div class="qr-container">
+                <div style="display: flex; gap: 20px; width: 100%; justify-content: center; flex-wrap: wrap;">
+                    <!-- Generate QR -->
+                    <div style="text-align: center;">
+                        <p style="font-size: 13px; font-weight: 600; margin-bottom: 10px;">📱 สร้าง QR Code</p>
+                        <button class="add-btn" onclick="generateQR()" style="background: #4CAF50; margin-bottom: 10px;">สร้าง QR Code</button>
+                        <div id="qrCode" class="qr-box"></div>
+                    </div>
+
+                    <!-- Scan QR -->
+                    <div style="text-align: center;">
+                        <p style="font-size: 13px; font-weight: 600; margin-bottom: 10px;">📸 สแกน QR Code</p>
+                        <input type="text" id="qrInput" class="form-input-text" placeholder="วาง QR Code ที่นี่" style="margin-bottom: 10px;">
+                        <button class="add-btn" onclick="syncFromQR()" style="background: #2196F3;">ซิงค์ข้อมูล</button>
+                    </div>
+                </div>
+
+                <div id="syncStatus"></div>
+
+                <div class="qr-info">
+                    <p>📖 วิธีใช้:</p>
+                    <p>1. คนที่ 1 → สร้าง QR Code</p>
+                    <p>2. คนที่ 2 → สแกน QR Code</p>
+                    <p>3. ข้อมูลซิงค์ทั้งสองเครื่อง ✅</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data Management
+        const DB_KEY = 'coupleChat_';
+        
+        function saveData(key, data) {
+            localStorage.setItem(DB_KEY + key, JSON.stringify(data));
+        }
+
+        function getData(key, defaultValue = []) {
+            const data = localStorage.getItem(DB_KEY + key);
+            return data ? JSON.parse(data) : defaultValue;
+        }
+
+        // State
+        let messages = getData('messages', []);
+        let savedMessages = getData('savedMessages', []);
+        let importantDates = getData('importantDates', []);
+        let isRecording = false;
+        let mediaRecorder = null;
+        let audioChunks = [];
+
+        // Initialize
+        function init() {
+            const pin = localStorage.getItem(DB_KEY + 'pin');
+            if (pin) {
+                showChatScreen();
+                renderMessages();
+            } else {
+                showLoginScreen();
+            }
+
+            // Auto-save messages
+            setInterval(() => {
+                saveData('messages', messages);
+                saveData('savedMessages', savedMessages);
+                saveData('importantDates', importantDates);
+            }, 5000);
+        }
+
+        // Login
+        function handleLogin() {
+            const pin = document.getElementById('pinInput').value;
+            if (pin.length < 4) {
+                alert('PIN ต้องมีอย่างน้อย 4 หลัก');
+                return;
+            }
+            localStorage.setItem(DB_KEY + 'pin', pin);
+            showChatScreen();
+            renderMessages();
+        }
+
+        // UI Functions
+        function showLoginScreen() {
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('chatScreen').classList.add('hidden');
+        }
+
+        function showChatScreen() {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('chatScreen').classList.remove('hidden');
+        }
+
+        // Messages
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+            
+            if (!text) return;
+
+            const message = {
+                id: Date.now(),
+                text: text,
+                sender: 'you',
+                timestamp: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }),
+                date: new Date().toLocaleDateString('th-TH')
+            };
+
+            messages.push(message);
+            saveData('messages', messages);
+            input.value = '';
+            renderMessages();
+            scrollToBottom();
+        }
+
+        function handleImageSelect() {
+            const file = document.getElementById('imageInput').files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const message = {
+                        id: Date.now(),
+                        image: e.target.result,
+                        sender: 'you',
+                        timestamp: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }),
+                        date: new Date().toLocaleDateString('th-TH')
+                    };
+                    messages.push(message);
+                    saveData('messages', messages);
+                    renderMessages();
+                    scrollToBottom();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function triggerImageInput() {
+            document.getElementById('imageInput').click();
+        }
+
+        function startVoiceNote() {
+            if (isRecording) {
+                stopVoiceNote();
+                return;
+            }
+
+            isRecording = true;
+            audioChunks = [];
+            document.getElementById('voiceBtn').style.background = '#FF5555';
+
+            navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+                mediaRecorder = new MediaRecorder(stream);
+                mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
+                mediaRecorder.onstart = () => {
+                    console.log('Recording started');
+                };
+                mediaRecorder.start();
+            }).catch(err => {
+                alert('ไม่สามารถเข้าถึงไมค์: ' + err.message);
+                isRecording = false;
+                document.getElementById('voiceBtn').style.background = '';
+            });
+        }
+
+        function stopVoiceNote() {
+            if (!mediaRecorder) return;
+
+            mediaRecorder.onstop = () => {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                const audioUrl = URL.createObjectURL(audioBlob);
+
+                const message = {
+                    id: Date.now(),
+                    audio: audioUrl,
+                    sender: 'you',
+                    timestamp: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }),
+                    date: new Date().toLocaleDateString('th-TH')
+                };
+
+                messages.push(message);
+                saveData('messages', messages);
+                renderMessages();
+                scrollToBottom();
+            };
+
+            mediaRecorder.stop();
+            mediaRecorder.stream.getTracks().forEach(track => track.stop());
+            isRecording = false;
+            document.getElementById('voiceBtn').style.background = '';
+        }
+
+        function renderMessages() {
+            const area = document.getElementById('messagesArea');
+            area.innerHTML = '';
+
+            messages.forEach(msg => {
+                const div = document.createElement('div');
+                div.className = `message ${msg.sender === 'you' ? 'sent' : 'received'}`;
+
+                let content = '';
+                if (msg.text) {
+                    content += `<div class="message-bubble">
+                        <span>${escapeHtml(msg.text)}</span>
+                        <span class="message-time">${msg.timestamp}</span>
+                        <div class="message-actions">
+                            <button class="message-action-btn" onclick="saveMessageToMemory(${msg.id})" title="เก็บข้อความ">❤️</button>
+                        </div>
+                    </div>`;
+                } else if (msg.image) {
+                    content += `<div class="message-bubble">
+                        <img src="${msg.image}" class="message-image" style="max-width: 200px;">
+                        <span class="message-time">${msg.timestamp}</span>
+                        <div class="message-actions">
+                            <button class="message-action-btn" onclick="saveMessageToMemory(${msg.id})" title="เก็บรูปภาพ">❤️</button>
+                        </div>
+                    </div>`;
+                } else if (msg.audio) {
+                    content += `<div class="message-bubble">
+                        <audio controls style="width: 100%; max-width: 200px;">
+                            <source src="${msg.audio}" type="audio/webm">
+                        </audio>
+                        <span class="message-time">${msg.timestamp}</span>
+                        <div class="message-actions">
+                            <button class="message-action-btn" onclick="saveMessageToMemory(${msg.id})" title="เก็บเสียง">❤️</button>
+                        </div>
+                    </div>`;
+                }
+
+                div.innerHTML = content;
+                area.appendChild(div);
+            });
+
+            scrollToBottom();
+        }
+
+        function scrollToBottom() {
+            const area = document.getElementById('messagesArea');
+            area.scrollTop = area.scrollHeight;
+        }
+
+        function saveMessageToMemory(messageId) {
+            const msg = messages.find(m => m.id === messageId);
+            if (!msg) return;
+
+            const saved = {
+                id: Date.now(),
+                content: msg.text || (msg.image ? '[รูปภาพ]' : '[เสียง]'),
+                type: msg.text ? 'text' : (msg.image ? 'image' : 'audio'),
+                data: msg.image || msg.audio || msg.text,
+                savedAt: new Date().toLocaleString('th-TH')
+            };
+
+            savedMessages.push(saved);
+            saveData('savedMessages', savedMessages);
+            alert('✅ บันทึกเรียบร้อย');
+        }
+
+        // Saved Messages
+        function openSavedMessages() {
+            renderSavedMessages();
+            document.getElementById('savedModal').classList.add('active');
+        }
+
+        function closeSavedMessages() {
+            document.getElementById('savedModal').classList.remove('active');
+        }
+
+        function renderSavedMessages() {
+            const list = document.getElementById('savedList');
+            list.innerHTML = '';
+
+            if (savedMessages.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: #999; padding: 20px;">ยังไม่มีข้อความที่เก็บไว้</p>';
+                return;
+            }
+
+            savedMessages.forEach(msg => {
+                const div = document.createElement('div');
+                div.className = 'saved-item';
+
+                let content = '';
+                if (msg.type === 'image') {
+                    content = `<img src="${msg.data}" style="width: 50px; height: 50px; border-radius: 8px; object-fit: cover;">`;
+                } else if (msg.type === 'audio') {
+                    content = `<audio controls style="width: 100%; max-width: 150px;"><source src="${msg.data}" type="audio/webm"></audio>`;
+                } else {
+                    content = `<div class="saved-item-text">${escapeHtml(msg.content)}</div>`;
+                }
+
+                div.innerHTML = `
+                    ${content}
+                    <div style="flex: 1; margin-left: 10px;">
+                        <div class="saved-item-time">${msg.savedAt}</div>
+                        <button class="delete-btn" onclick="deleteSavedMessage(${msg.id})">ลบ</button>
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function deleteSavedMessage(id) {
+            savedMessages = savedMessages.filter(m => m.id !== id);
+            saveData('savedMessages', savedMessages);
+            renderSavedMessages();
+        }
+
+        // Important Dates
+        function openImportantDates() {
+            renderDates();
+            document.getElementById('datesModal').classList.add('active');
+        }
+
+        function closeDates() {
+            document.getElementById('datesModal').classList.remove('active');
+        }
+
+        function addDate() {
+            const title = document.getElementById('dateTitle').value;
+            const date = document.getElementById('dateDate').value;
+            const desc = document.getElementById('dateDesc').value;
+
+            if (!title || !date) {
+                alert('กรุณากรอกชื่อและวันที่');
+                return;
+            }
+
+            const newDate = {
+                id: Date.now(),
+                title: title,
+                date: new Date(date).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }),
+                desc: desc
+            };
+
+            importantDates.push(newDate);
+            saveData('importantDates', importantDates);
+
+            document.getElementById('dateTitle').value = '';
+            document.getElementById('dateDate').value = '';
+            document.getElementById('dateDesc').value = '';
+
+            renderDates();
+        }
+
+        function renderDates() {
+            const list = document.getElementById('datesList');
+            list.innerHTML = '';
+
+            if (importantDates.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: #999; padding: 20px;">ยังไม่มีวันสำคัญ</p>';
+                return;
+            }
+
+            importantDates.forEach(date => {
+                const div = document.createElement('div');
+                div.className = 'date-item';
+                div.innerHTML = `
+                    <div class="date-info">
+                        <div class="date-title">${escapeHtml(date.title)}</div>
+                        <div class="date-date">📅 ${date.date}</div>
+                        ${date.desc ? `<div class="date-desc">${escapeHtml(date.desc)}</div>` : ''}
+                    </div>
+                    <button class="delete-btn" onclick="deleteDate(${date.id})">ลบ</button>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function deleteDate(id) {
+            importantDates = importantDates.filter(d => d.id !== id);
+            saveData('importantDates', importantDates);
+            renderDates();
+        }
+
+        // Settings
+        function openSettings() {
+            document.getElementById('settingsModal').classList.add('active');
+        }
+
+        function closeSettings() {
+            document.getElementById('settingsModal').classList.remove('active');
+        }
+
+        function clearAllData() {
+            if (confirm('⚠️ คุณแน่ใจหรือไม่? การลบข้อมูลไม่สามารถกู้คืนได้')) {
+                Object.keys(localStorage).forEach(key => {
+                    if (key.startsWith(DB_KEY)) {
+                        localStorage.removeItem(key);
+                    }
+                });
+                messages = [];
+                savedMessages = [];
+                importantDates = [];
+                renderMessages();
+                closeSettings();
+                alert('✅ ลบข้อมูลเรียบร้อย');
+            }
+        }
+
+        function logout() {
+            if (confirm('คุณต้องการออกจากระบบหรือไม่?')) {
+                localStorage.removeItem(DB_KEY + 'pin');
+                showLoginScreen();
+                document.getElementById('pinInput').value = '';
+                closeSettings();
+            }
+        }
+
+        // QR Code Sync
+        function generateQR() {
+            const qrContainer = document.getElementById('qrCode');
+            qrContainer.innerHTML = '';
+
+            // สร้าง Sync Code จากข้อมูลปัจจุบัน
+            const syncData = {
+                pin: localStorage.getItem(DB_KEY + 'pin'),
+                messages: getData('messages', []),
+                savedMessages: getData('savedMessages', []),
+                importantDates: getData('importantDates', [])
+            };
+
+            const syncCode = btoa(JSON.stringify(syncData));
+            const qrText = 'COUPLE_CHAT:' + syncCode;
+
+            new QRCode(qrContainer, {
+                text: qrText,
+                width: 200,
+                height: 200,
+                colorDark: '#FF6B6B',
+                colorLight: '#FFFFFF',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            showSyncStatus('✅ QR Code สร้างสำเร็จ! ให้แฟนสแกน', false);
+        }
+
+        function syncFromQR() {
+            const input = document.getElementById('qrInput').value.trim();
+            
+            if (!input.startsWith('COUPLE_CHAT:')) {
+                showSyncStatus('❌ QR Code ไม่ถูกต้อง', true);
+                return;
+            }
+
+            try {
+                const syncCode = input.replace('COUPLE_CHAT:', '');
+                const syncData = JSON.parse(atob(syncCode));
+
+                // ตรวจสอบ PIN
+                const currentPin = localStorage.getItem(DB_KEY + 'pin');
+                if (syncData.pin !== currentPin) {
+                    showSyncStatus('❌ PIN ไม่ตรงกัน', true);
+                    return;
+                }
+
+                // ซิงค์ข้อมูล
+                messages = syncData.messages || [];
+                savedMessages = syncData.savedMessages || [];
+                importantDates = syncData.importantDates || [];
+
+                saveData('messages', messages);
+                saveData('savedMessages', savedMessages);
+                saveData('importantDates', importantDates);
+
+                renderMessages();
+                showSyncStatus('✅ ซิงค์ข้อมูลสำเร็จ! ข้อมูลทั้งหมดอัปเดตแล้ว', false);
+                
+                setTimeout(() => {
+                    closeQRSync();
+                }, 2000);
+            } catch (err) {
+                showSyncStatus('❌ เกิดข้อผิดพลาด: ' + err.message, true);
+            }
+        }
+
+        function showSyncStatus(message, isError) {
+            const statusDiv = document.getElementById('syncStatus');
+            statusDiv.className = 'sync-status' + (isError ? ' error' : '');
+            statusDiv.textContent = message;
+        }
+
+        function openQRSync() {
+            document.getElementById('qrModal').classList.add('active');
+            document.getElementById('qrInput').value = '';
+            document.getElementById('syncStatus').innerHTML = '';
+        }
+
+        function closeQRSync() {
+            document.getElementById('qrModal').classList.remove('active');
+        }
+
+        // Utility
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Close modals on outside click
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal')) {
+                e.target.classList.remove('active');
+            }
         });
-      } else {
-        conn.send({ type: 'ERR_PERM', msg: 'แฟนของคุณปิดสิทธิ์การเข้าถึงพิกัด GPS ไว้' });
-      }
-    }
 
-    function requestAudioStream() {
-      if (!peer || !conn || !conn.open) return alert("อีกฝ่ายยังไม่ออน");
-      const secret = document.getElementById('secret-key').value.trim();
-      navigator.mediaDevices.getUserMedia({ audio: true }).then(s => {
-        const call = peer.call(`${secret}-${targetRole}`, s);
-        call.on('stream', rs => {
-          document.getElementById('remote-audio').srcObject = rs;
-          alert("🎙️ รับสัญญาณเสียงเรียบร้อย");
+        // Enter to send message
+        document.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey && e.target.id === 'messageInput') {
+                e.preventDefault();
+                sendMessage();
+            }
         });
-      });
-    }
 
-    function escapeHTML(str) {
-      return str.replace(/[&<>'"]/g, tag => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[tag]||tag));
-    }
-  </script>
+        // Auto-expand textarea
+        const textarea = document.getElementById('messageInput');
+        textarea.addEventListener('input', () => {
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.min(textarea.scrollHeight, 100) + 'px';
+        });
+
+        // Initialize on load
+        window.addEventListener('load', init);
+    </script>
 </body>
 </html>
