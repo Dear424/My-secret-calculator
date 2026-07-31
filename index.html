@@ -235,27 +235,6 @@
             transform: scale(1.05);
         }
 
-        /* Identity Switcher Bar */
-        .identity-bar {
-            background: rgba(0,0,0,0.3);
-            padding: 6px 16px;
-            font-size: 11px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
-
-        .switch-identity-btn {
-            background: rgba(255, 107, 157, 0.2);
-            border: 1px solid rgba(255, 107, 157, 0.4);
-            color: #FF8AB3;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 10px;
-            cursor: pointer;
-        }
-
         .messages-area {
             flex: 1;
             overflow-y: auto;
@@ -604,7 +583,6 @@
         }
 
         .btn-grant { background: #34C759; color: white; }
-        .btn-deny { background: rgba(255,255,255,0.1); color: #ccc; }
 
         .qr-container {
             text-align: center;
@@ -691,23 +669,18 @@
                 <div class="header-left">
                     <div class="header-avatar" id="headerAvatar">💕</div>
                     <div class="header-info">
-                        <h2 id="chatTitle">ของเรา</h2>
+                        <h2 id="chatTitle">ห้องแชทของเรา</h2>
                         <p><span class="status-dot"></span> <span id="onlineStatusText">Online</span></p>
                     </div>
                 </div>
                 <div class="header-actions">
+                    <button class="header-btn" onclick="startVideoCall()" title="วิดีโอคอล">📹</button>
                     <button class="header-btn" onclick="openProfile()" title="โปรไฟล์">👤</button>
                     <button class="header-btn" onclick="openStats()" title="สถิติ">📊</button>
                     <button class="header-btn" onclick="openLetter()" title="จดหมาย">💌</button>
                     <button class="header-btn" onclick="openGifts()" title="ของขวัญ">🎁</button>
                     <button class="header-btn" onclick="openSettings()" title="ตั้งค่า">⚙️</button>
                 </div>
-            </div>
-
-            <!-- Identity Switcher for quick test/dual mode -->
-            <div class="identity-bar">
-                <span>กำลังพิมพ์ในฐานะ: <strong id="currentIdentityLabel" style="color:#FF8AB3;">เรา</strong></span>
-                <button class="switch-identity-btn" onclick="toggleIdentity()">🔄 สลับเป็น <span id="nextIdentityLabel">แฟน</span></button>
             </div>
 
             <!-- Messages Area -->
@@ -736,29 +709,33 @@
         <img id="lightboxImg" src="" alt="Full size preview">
     </div>
 
+    <!-- Video Call Modal -->
+    <div class="modal" id="videoCallModal">
+        <div class="modal-content" style="text-align: center; background: #110321; border: 1px solid rgba(255,107,157,0.3);">
+            <div class="modal-header" style="justify-content: center; color: #fff;">📹 วิดีโอคอล</div>
+            <div style="position: relative; width: 100%; height: 300px; background: #000; border-radius: 14px; overflow: hidden; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.1);">
+                <video id="videoPreview" autoplay playsinline style="width: 100%; height: 100%; object-fit: cover;"></video>
+                <div id="videoCallStatus" style="position: absolute; bottom: 12px; background: rgba(0,0,0,0.7); padding: 5px 14px; border-radius: 20px; font-size: 12px; color: #fff; backdrop-filter: blur(4px);">กำลังเปิดกล้อง...</div>
+            </div>
+            <button class="btn btn-danger" onclick="endVideoCall()">📵 วางสาย</button>
+        </div>
+    </div>
+
     <!-- Profile Modal -->
     <div class="modal" id="profileModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeProfile()">✕</button>
-            <div class="modal-header">👤 โปรไฟล์ความรัก</div>
+            <div class="modal-header">👤 ตั้งค่าชื่อผู้ใช้งาน</div>
             
             <div class="profile-section">
-                <label class="form-label">ชื่อของเรา</label>
+                <label class="form-label">ชื่อของคุณ</label>
                 <input type="text" id="myName" class="input-text" placeholder="ชื่อของคุณ">
             </div>
             <div class="profile-section">
                 <label class="form-label">ชื่อแฟน</label>
                 <input type="text" id="partnerName" class="input-text" placeholder="ชื่อแฟน">
             </div>
-            <div class="profile-section">
-                <label class="form-label">สถานะ</label>
-                <select id="statusSelect" class="input-text" style="background:#2A1845;">
-                    <option value="Online 🟢">🟢 Online</option>
-                    <option value="Busy 🔴">🔴 Busy</option>
-                    <option value="Thinking of you 💭">💭 คิดถึงคุณอยู่</option>
-                </select>
-            </div>
-            <button class="btn" onclick="saveProfile()">💾 บันทึกโปรไฟล์</button>
+            <button class="btn" onclick="saveProfile()">💾 บันทึกข้อมูล</button>
         </div>
     </div>
 
@@ -894,11 +871,8 @@
         let isRecording = false;
         let mediaRecorder = null;
         let audioChunks = [];
-        let currentIdentity = 'you'; // 'you' หรือ 'partner'
-        let recTimer = null;
-        let recSeconds = 0;
+        let videoStream = null;
 
-        // Channel สำหรับ Broadcast ซิงค์ข้อมูลสดข้าม Tab/Window ในเครื่องเดียวกัน
         const syncChannel = new BroadcastChannel('couple_chat_channel');
 
         syncChannel.onmessage = (event) => {
@@ -957,27 +931,10 @@
             document.getElementById('chatScreen').classList.remove('hidden');
         }
 
-        function toggleIdentity() {
-            currentIdentity = currentIdentity === 'you' ? 'partner' : 'you';
-            updateProfileUI();
-        }
-
         function updateProfileUI() {
             const myName = localStorage.getItem(DB_KEY + 'myName') || 'เรา';
             const partnerName = localStorage.getItem(DB_KEY + 'partnerName') || 'แฟน';
-            const status = localStorage.getItem(DB_KEY + 'status') || 'Online 🟢';
-
-            document.getElementById('onlineStatusText').textContent = status;
-
-            if (currentIdentity === 'you') {
-                document.getElementById('currentIdentityLabel').textContent = myName;
-                document.getElementById('nextIdentityLabel').textContent = partnerName;
-                document.getElementById('chatTitle').textContent = `คุยกับ ${partnerName}`;
-            } else {
-                document.getElementById('currentIdentityLabel').textContent = partnerName;
-                document.getElementById('nextIdentityLabel').textContent = myName;
-                document.getElementById('chatTitle').textContent = `คุยกับ ${myName}`;
-            }
+            document.getElementById('chatTitle').textContent = `คุยกับ ${partnerName}`;
         }
 
         function playSound() {
@@ -1002,13 +959,12 @@
             if (!text) return;
 
             const myName = localStorage.getItem(DB_KEY + 'myName') || 'เรา';
-            const partnerName = localStorage.getItem(DB_KEY + 'partnerName') || 'แฟน';
 
             const msg = {
                 id: Date.now(),
                 text: text,
-                sender: currentIdentity,
-                senderName: currentIdentity === 'you' ? myName : partnerName,
+                sender: 'you',
+                senderName: myName,
                 time: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
             };
 
@@ -1025,7 +981,7 @@
             area.innerHTML = '';
 
             messages.forEach(msg => {
-                const isMe = msg.sender === currentIdentity;
+                const isMe = msg.sender === 'you';
                 const div = document.createElement('div');
                 div.className = `message ${isMe ? 'sent' : 'received'}`;
                 
@@ -1046,7 +1002,7 @@
                 }
                 
                 div.innerHTML = `
-                    <span class="message-sender-name">${msg.senderName || (msg.sender === 'you' ? 'เรา' : 'แฟน')}</span>
+                    <span class="message-sender-name">${msg.senderName || (isMe ? 'เรา' : 'แฟน')}</span>
                     ${contentHTML}
                     <span class="message-time">${msg.time}</span>
                 `;
@@ -1060,14 +1016,13 @@
             const file = document.getElementById('imageInput').files[0];
             if (file) {
                 const myName = localStorage.getItem(DB_KEY + 'myName') || 'เรา';
-                const partnerName = localStorage.getItem(DB_KEY + 'partnerName') || 'แฟน';
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     messages.push({
                         id: Date.now(),
                         image: e.target.result,
-                        sender: currentIdentity,
-                        senderName: currentIdentity === 'you' ? myName : partnerName,
+                        sender: 'you',
+                        senderName: myName,
                         time: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
                     });
                     saveAndBroadcast();
@@ -1105,7 +1060,6 @@
                 isRecording = true;
                 const btn = document.getElementById('voiceBtn');
                 btn.classList.add('recording');
-                recSeconds = 0;
                 btn.innerText = '🔴';
             }).catch(err => {
                 alert('ไม่สามารถเข้าถึงไมโครโฟนได้');
@@ -1120,12 +1074,11 @@
                 const reader = new FileReader();
                 reader.onloadend = () => {
                     const myName = localStorage.getItem(DB_KEY + 'myName') || 'เรา';
-                    const partnerName = localStorage.getItem(DB_KEY + 'partnerName') || 'แฟน';
                     messages.push({
                         id: Date.now(),
                         audio: reader.result,
-                        sender: currentIdentity,
-                        senderName: currentIdentity === 'you' ? myName : partnerName,
+                        sender: 'you',
+                        senderName: myName,
                         time: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
                     });
                     saveAndBroadcast();
@@ -1143,6 +1096,37 @@
             btn.innerText = '🎤';
         }
 
+        // Video Call
+        function startVideoCall() {
+            const modal = document.getElementById('videoCallModal');
+            const video = document.getElementById('videoPreview');
+            const status = document.getElementById('videoCallStatus');
+
+            modal.classList.add('active');
+
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+                    .then(stream => {
+                        videoStream = stream;
+                        video.srcObject = stream;
+                        status.textContent = '🟢 กำลังเชื่อมต่อสาย...';
+                    })
+                    .catch(err => {
+                        status.textContent = '❌ ไม่สามารถเข้าถึงกล้อง/ไมค์ได้';
+                    });
+            } else {
+                status.textContent = '❌ อุปกรณ์ไม่รองรับการใช้งานกล้อง';
+            }
+        }
+
+        function endVideoCall() {
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+                videoStream = null;
+            }
+            document.getElementById('videoCallModal').classList.remove('active');
+        }
+
         function openLightbox(src) {
             document.getElementById('lightboxImg').src = src;
             document.getElementById('lightboxModal').classList.add('active');
@@ -1156,7 +1140,6 @@
         function openProfile() {
             document.getElementById('myName').value = localStorage.getItem(DB_KEY + 'myName') || '';
             document.getElementById('partnerName').value = localStorage.getItem(DB_KEY + 'partnerName') || '';
-            document.getElementById('statusSelect').value = localStorage.getItem(DB_KEY + 'status') || 'Online 🟢';
             document.getElementById('profileModal').classList.add('active');
         }
 
@@ -1167,14 +1150,12 @@
         function saveProfile() {
             const myName = document.getElementById('myName').value.trim();
             const partnerName = document.getElementById('partnerName').value.trim();
-            const status = document.getElementById('statusSelect').value;
 
             if (myName) localStorage.setItem(DB_KEY + 'myName', myName);
             if (partnerName) localStorage.setItem(DB_KEY + 'partnerName', partnerName);
-            localStorage.setItem(DB_KEY + 'status', status);
 
             updateProfileUI();
-            alert('✅ บันทึกโปรไฟล์เรียบร้อยแล้ว');
+            alert('✅ บันทึกข้อมูลเรียบร้อยแล้ว');
             closeProfile();
         }
 
@@ -1217,7 +1198,7 @@
             letters.push({
                 id: Date.now(),
                 text: text,
-                author: currentIdentity === 'you' ? (localStorage.getItem(DB_KEY + 'myName') || 'เรา') : (localStorage.getItem(DB_KEY + 'partnerName') || 'แฟน'),
+                author: localStorage.getItem(DB_KEY + 'myName') || 'เรา',
                 date: new Date().toLocaleDateString('th-TH', { day:'numeric', month:'short', year:'numeric' })
             });
             saveData('letters', letters);
@@ -1261,12 +1242,11 @@
 
         function sendGift(emoji, name) {
             const myName = localStorage.getItem(DB_KEY + 'myName') || 'เรา';
-            const partnerName = localStorage.getItem(DB_KEY + 'partnerName') || 'แฟน';
             messages.push({
                 id: Date.now(),
                 text: `🎁 มอบขวัญสุดพิเศษ: ${name} ${emoji}`,
-                sender: currentIdentity,
-                senderName: currentIdentity === 'you' ? myName : partnerName,
+                sender: 'you',
+                senderName: myName,
                 time: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
             });
             saveAndBroadcast();
@@ -1290,8 +1270,9 @@
             setTimeout(() => confetti.remove(), 2500);
         }
 
-        // Permissions & GPS
+        // Permissions & GPS Transitions
         function openPermissions() {
+            closeSettings(); // ปิด Settings อัตโนมัติและไปหน้า Permissions
             document.getElementById('permissionsModal').classList.add('active');
         }
 
@@ -1317,13 +1298,12 @@
                 const lat = pos.coords.latitude;
                 const lng = pos.coords.longitude;
                 const myName = localStorage.getItem(DB_KEY + 'myName') || 'เรา';
-                const partnerName = localStorage.getItem(DB_KEY + 'partnerName') || 'แฟน';
 
                 messages.push({
                     id: Date.now(),
                     location: { lat, lng },
-                    sender: currentIdentity,
-                    senderName: currentIdentity === 'you' ? myName : partnerName,
+                    sender: 'you',
+                    senderName: myName,
                     time: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
                 });
                 saveAndBroadcast();
@@ -1335,8 +1315,9 @@
             });
         }
 
-        // QR Sync & Backup
+        // QR Sync & Backup Transitions
         function openQRSync() {
+            closeSettings(); // ปิด Settings อัตโนมัติและไปหน้า Sync
             document.getElementById('qrModal').classList.add('active');
         }
 
@@ -1345,7 +1326,6 @@
         }
 
         function getSyncPayload() {
-            // ส่งเฉพาะข้อความและพิกัดเพื่อไม่ให้ String ยาวเกินไปจนสร้าง QR ไม่ได้
             const textOnlyMessages = messages.map(m => ({
                 id: m.id,
                 text: m.text,
