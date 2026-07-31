@@ -2,51 +2,60 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Cat P2P Chat v3.0</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Cat P2P Couple Chat v4.0</title>
   <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-    body { background-color: #0b0f19; color: #e2e8f0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+    body { background-color: #0d1117; color: #e6edf3; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
 
     /* Header */
     header {
-      background: #151c2c;
-      padding: 12px 16px;
+      background: #161b22;
+      padding: 10px 16px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid #1e293b;
+      border-bottom: 1px solid #30363d;
+      z-index: 10;
     }
     .header-info { display: flex; align-items: center; gap: 10px; }
-    .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #ef4444; }
-    .status-dot.online { background: #22c55e; box-shadow: 0 0 8px #22c55e; }
-    .chat-title { font-weight: bold; font-size: 1rem; color: #f8fafc; }
-    .btn-icon { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #94a3b8; padding: 4px; }
+    .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #f85149; }
+    .status-dot.online { background: #3fb950; box-shadow: 0 0 8px #3fb950; }
+    .chat-title { font-weight: bold; font-size: 0.95rem; color: #f0f6fc; }
+    .mood-tag { font-size: 0.75rem; color: #a5d6ff; background: rgba(56, 139, 253, 0.15); padding: 2px 6px; border-radius: 10px; }
+    .btn-icon { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #8b949e; padding: 4px; }
 
-    /* Settings Drawer */
+    /* Drawer ตั้งค่า & Permissions */
     .drawer {
-      background: #1e293b;
-      padding: 12px;
+      background: #161b22;
+      padding: 14px;
       display: none;
       flex-direction: column;
-      gap: 8px;
-      border-bottom: 1px solid #334155;
+      gap: 10px;
+      border-bottom: 1px solid #30363d;
       font-size: 0.85rem;
+      max-height: 80vh;
+      overflow-y: auto;
     }
-    .drawer select, .drawer input {
-      background: #0f172a; border: 1px solid #475569; color: #00ff66; padding: 8px; border-radius: 6px; width: 100%; outline: none;
+    .drawer select, .drawer input[type="text"], .drawer input[type="password"], .drawer input[type="date"] {
+      background: #0d1117; border: 1px solid #30363d; color: #3fb950; padding: 8px; border-radius: 6px; width: 100%; outline: none;
     }
-    .drawer button { background: #22c55e; color: #000; font-weight: bold; padding: 8px; border-radius: 6px; border: none; cursor: pointer; }
+    .toggle-row { display: flex; justify-content: space-between; align-items: center; background: #21262d; padding: 8px 12px; border-radius: 6px; }
+    .drawer button { background: #238636; color: #fff; font-weight: bold; padding: 10px; border-radius: 6px; border: none; cursor: pointer; margin-top: 4px; }
 
-    /* Chat Body */
+    /* Days Counter Banner */
+    .days-banner { background: linear-gradient(90deg, #7c3aed, #db2777); text-align: center; padding: 6px; font-size: 0.75rem; font-weight: bold; color: #fff; }
+
+    /* Chat Area */
     .chat-container {
       flex: 1;
       padding: 12px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
+      background: #0d1117;
     }
     .bubble {
       max-width: 80%;
@@ -57,114 +66,68 @@
       word-break: break-word;
       position: relative;
     }
-    .bubble.me {
-      align-self: flex-end;
-      background: #15803d;
-      color: #fff;
-      border-bottom-right-radius: 4px;
-    }
-    .bubble.them {
-      align-self: flex-start;
-      background: #1e293b;
-      color: #f1f5f9;
-      border-bottom-left-radius: 4px;
-      border: 1px solid #334155;
-    }
-    .bubble .time { font-size: 0.65rem; opacity: 0.7; margin-top: 4px; text-align: right; display: block; }
+    .bubble.me { align-self: flex-end; background: #238636; color: #fff; border-bottom-right-radius: 4px; }
+    .bubble.them { align-self: flex-start; background: #21262d; color: #c9d1d9; border-bottom-left-radius: 4px; border: 1px solid #30363d; }
+    .bubble.pending { opacity: 0.7; border: 1px dashed #e3b341; }
+    .bubble .meta { font-size: 0.65rem; opacity: 0.75; margin-top: 4px; text-align: right; display: flex; justify-content: flex-end; gap: 4px; align-items: center; }
 
-    /* Special Gift Request Card in Chat */
-    .gift-card {
-      background: #2e1065;
-      border: 1px solid #a855f7;
-      border-radius: 12px;
-      padding: 12px;
-      width: 240px;
-      box-shadow: 0 4px 12px rgba(168, 85, 247, 0.2);
-    }
-    .gift-title { font-weight: bold; color: #e9d5ff; font-size: 0.9rem; margin-bottom: 4px; }
-    .gift-item { font-size: 1.1rem; color: #fff; font-weight: bold; margin: 6px 0; background: rgba(0,0,0,0.3); padding: 6px 10px; border-radius: 6px; text-align: center; }
+    /* Gift Request Card */
+    .gift-card { background: #2e1065; border: 1px solid #a855f7; border-radius: 12px; padding: 12px; width: 220px; }
+    .gift-title { font-weight: bold; color: #e9d5ff; font-size: 0.85rem; }
+    .gift-item { font-size: 1rem; color: #fff; font-weight: bold; margin: 6px 0; background: rgba(0,0,0,0.3); padding: 6px; border-radius: 6px; text-align: center; }
     .btn-ack-gift { background: #a855f7; color: #fff; border: none; padding: 6px; width: 100%; border-radius: 6px; font-weight: bold; margin-top: 6px; cursor: pointer; }
 
     /* Quick Toolbar */
-    .quick-bar {
-      display: flex;
-      gap: 6px;
-      padding: 8px 12px;
-      background: #0f172a;
-      overflow-x: auto;
-      border-top: 1px solid #1e293b;
-    }
-    .btn-quick {
-      background: #1e293b;
-      color: #38bdf8;
-      border: 1px solid #334155;
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 0.8rem;
-      white-space: nowrap;
-      cursor: pointer;
-    }
-    .btn-quick.alert { color: #f43f5e; border-color: #881337; }
+    .quick-bar { display: flex; gap: 6px; padding: 8px 12px; background: #161b22; overflow-x: auto; border-top: 1px solid #21262d; }
+    .btn-quick { background: #21262d; color: #58a6ff; border: 1px solid #30363d; padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; white-space: nowrap; cursor: pointer; }
+    .btn-quick.alert { color: #f85149; border-color: #8e1519; }
 
     /* Input Footer */
-    .chat-footer {
-      display: flex;
-      padding: 10px 12px;
-      background: #151c2c;
-      gap: 8px;
-      align-items: center;
-    }
+    .chat-footer { display: flex; padding: 10px 12px; background: #161b22; gap: 8px; align-items: center; border-top: 1px solid #30363d; }
     .chat-footer input {
-      flex: 1;
-      background: #0f172a;
-      border: 1px solid #334155;
-      color: #fff;
-      padding: 10px 14px;
-      border-radius: 20px;
-      outline: none;
-      font-size: 0.95rem;
+      flex: 1; background: #0d1117; border: 1px solid #30363d; color: #fff; padding: 10px 14px; border-radius: 20px; outline: none; font-size: 0.95rem;
     }
-    .btn-send {
-      background: #22c55e;
-      color: #000;
-      border: none;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      font-weight: bold;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .chat-footer input:focus { border-color: #58a6ff; }
+    .btn-send { background: #238636; color: #fff; border: none; width: 40px; height: 40px; border-radius: 50%; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+    /* Floating Hearts Container */
+    #heart-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; }
+    .floating-heart { position: absolute; font-size: 2rem; animation: floatUp 2s ease-out forwards; }
+    @keyframes floatUp {
+      0% { transform: translateY(100vh) scale(0.5); opacity: 1; }
+      100% { transform: translateY(-10vh) scale(1.5); opacity: 0; }
     }
 
-    /* Modal for Request Item */
-    .modal {
-      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 1000;
-    }
-    .modal-box { background: #1e293b; padding: 20px; border-radius: 12px; width: 85%; max-width: 320px; border: 1px solid #a855f7; }
-    .modal-box h3 { color: #e9d5ff; font-size: 1.1rem; margin-bottom: 12px; }
-    .modal-box input { width: 100%; padding: 10px; background: #0f172a; border: 1px solid #475569; color: #fff; border-radius: 6px; margin-bottom: 12px; }
+    /* Modal ขอของ */
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 1000; }
+    .modal-box { background: #161b22; padding: 20px; border-radius: 12px; width: 85%; max-width: 320px; border: 1px solid #a855f7; }
+    .modal-box h3 { color: #e9d5ff; font-size: 1rem; margin-bottom: 10px; }
+    .modal-box input { width: 100%; padding: 10px; background: #0d1117; border: 1px solid #30363d; color: #fff; border-radius: 6px; margin-bottom: 10px; }
     .modal-box button { width: 100%; padding: 10px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; margin-top: 4px; }
   </style>
 </head>
 <body>
+
+  <div id="heart-container"></div>
+
+  <!-- Banner นับวันครบรอบ -->
+  <div class="days-banner" id="days-banner">💕 คบกันมาแล้ว 1 วัน</div>
 
   <!-- Header -->
   <header>
     <div class="header-info">
       <div id="dot" class="status-dot"></div>
       <div>
-        <div class="chat-title">🐾 CAT P2P CHAT</div>
-        <div id="status-text" style="font-size: 0.7rem; color: #94a3b8;">Offline</div>
+        <div class="chat-title">🐾 CAT P2P CHAT <span id="partner-mood" class="mood-tag">คิดถึง 💖</span></div>
+        <div id="status-text" style="font-size: 0.7rem; color: #8b949e;">Offline (ข้อความจะดองไว้นำส่งเมื่อต่อเน็ต)</div>
       </div>
     </div>
     <button class="btn-icon" onclick="toggleDrawer()">⚙️</button>
   </header>
 
-  <!-- Drawer ตั้งค่าล็อกอิน (ซ่อนไว้กดเปิดได้) -->
+  <!-- Drawer ตั้งค่า & Permissions -->
   <div id="drawer" class="drawer">
+    <div style="font-weight: bold; color: #58a6ff;">1. การเชื่อมต่อหลัก</div>
     <div>ตัวละครของคุณ:</div>
     <select id="role-select" onchange="initPeer()">
       <option value="Sechuan">🐱 ผมคือ: แมวเสฉวน</option>
@@ -172,27 +135,51 @@
     </select>
     <div>รหัสลับเข้าห้อง:</div>
     <input type="password" id="secret-key" value="cat-love-2026">
-    <button onclick="initPeer(); toggleDrawer();">เชื่อมต่อ P2P</button>
+    
+    <div style="font-weight: bold; color: #58a6ff; margin-top: 6px;">2. สิทธิ์ความยินยอม (Permissions)</div>
+    <div class="toggle-row">
+      <span>📍 ยินยอมให้แฟนขอพิกัด GPS</span>
+      <input type="checkbox" id="perm-gps" checked>
+    </div>
+    <div class="toggle-row">
+      <span>🎙️ ยินยอมให้แฟนฟังเสียงไมค์</span>
+      <input type="checkbox" id="perm-audio" checked>
+    </div>
+
+    <div style="font-weight: bold; color: #58a6ff; margin-top: 6px;">3. ลูกเล่นคู่รัก</div>
+    <div>ตั้งอารมณ์ของคุณ (Mood):</div>
+    <select id="my-mood" onchange="updateMyMood()">
+      <option value="คิดถึงมาก 💖">คิดถึงมาก 💖</option>
+      <option value="ทำงานอยู่นะ 💼">ทำงานอยู่นะ 💼</option>
+      <option value="กินข้าวอยู่ 🍔">กินข้าวอยู่ 🍔</option>
+      <option value="งอนแล้วนะ 😤">งอนแล้วนะ 😤</option>
+      <option value="ง่วงนอนแล้ว 😴">ง่วงนอนแล้ว 😴</option>
+    </select>
+    <div>วันที่เริ่มคบกัน:</div>
+    <input type="date" id="love-date" value="2026-01-01" onchange="calcLoveDays()">
+
+    <button onclick="initPeer(); toggleDrawer();">อัปเดต & เชื่อมต่อ P2P</button>
   </div>
 
-  <!-- Area แสดงข้อความแชต -->
+  <!-- Area แชต -->
   <div class="chat-container" id="chat-box">
-    <div style="text-align: center; color: #64748b; font-size: 0.75rem; margin: 10px 0;">
-      🔒 เข้ารหัสแบบ P2P ตรงระหว่างสองเครื่อง ไม่ผ่านเซิร์ฟเวอร์
+    <div style="text-align: center; color: #484f58; font-size: 0.75rem; margin: 10px 0;">
+      🔒 ระบบ P2P ตรงระหว่างสองเครื่อง (มีระบบฝากข้อความเมื่ออีกฝ่ายไม่ออน)
     </div>
   </div>
 
   <!-- Quick Action Toolbar -->
   <div class="quick-bar">
+    <button class="btn-quick" style="color:#ec4899; border-color:#ec4899;" onclick="sendHearts()">💖 ส่งหัวใจ</button>
     <button class="btn-quick alert" onclick="sendQuickAlert()">🍚 แจ้งหิวข้าว!</button>
     <button class="btn-quick" style="color: #a855f7; border-color: #a855f7;" onclick="openGiftModal()">🎁 ขอของแฟน</button>
     <button class="btn-quick" onclick="requestLocation()">📍 ขอพิกัด</button>
     <button class="btn-quick alert" onclick="requestAudioStream()">🎙️ ฟังเสียงไมค์</button>
   </div>
 
-  <!-- Input Bar -->
+  <!-- Input Footer -->
   <div class="chat-footer">
-    <input type="text" id="msg-input" placeholder="พิมพ์ข้อความ..." onkeypress="if(event.key==='Enter') sendText();">
+    <input type="text" id="msg-input" placeholder="พิมพ์ข้อความ..." onkeypress="if(event.key==='Enter') sendText();" autocomplete="off">
     <button class="btn-send" onclick="sendText()">➔</button>
   </div>
 
@@ -202,7 +189,7 @@
       <h3>🎁 ขอของจากแฟน</h3>
       <input type="text" id="gift-name" placeholder="เช่น ชานมไข่มุก, ขนม, สกินเกม">
       <button style="background: #a855f7; color: #fff;" onclick="sendGiftRequest()">ส่งคำขอของ</button>
-      <button style="background: transparent; color: #94a3b8;" onclick="closeGiftModal()">ยกเลิก</button>
+      <button style="background: transparent; color: #8b949e;" onclick="closeGiftModal()">ยกเลิก</button>
     </div>
   </div>
 
@@ -210,6 +197,7 @@
 
   <script>
     let peer = null, conn = null, myRole = "", targetRole = "";
+    let outboxQueue = []; // กล่องฝากข้อความเวลาอีกฝ่ายไม่ออน
 
     function toggleDrawer() {
       const d = document.getElementById('drawer');
@@ -218,6 +206,14 @@
 
     function getTime() {
       return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function calcLoveDays() {
+      const startDate = new Date(document.getElementById('love-date').value);
+      const today = new Date();
+      const diffTime = Math.abs(today - startDate);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      document.getElementById('days-banner').innerText = `💕 คบกันมาแล้ว ${diffDays} วัน`;
     }
 
     function initPeer() {
@@ -242,8 +238,16 @@
       peer.on('connection', (c) => { conn = c; setupListener(); });
       
       peer.on('call', (call) => {
-        navigator.mediaDevices.getUserMedia({ audio: true }).then(s => call.answer(s)).catch(() => call.answer());
+        // เช็กสิทธิ์ว่ายินยอมให้ฟังเสียงไหม
+        const allowAudio = document.getElementById('perm-audio').checked;
+        if (allowAudio) {
+          navigator.mediaDevices.getUserMedia({ audio: true }).then(s => call.answer(s)).catch(() => call.answer());
+        } else {
+          alert("อีกฝ่ายพยายามขอฟังเสียงไมค์ แต่คุณปิดสิทธิ์ไว้ในระบบ");
+        }
       });
+
+      calcLoveDays();
     }
 
     function connectTarget(targetId) {
@@ -254,55 +258,125 @@
 
     function setupListener() {
       if (!conn) return;
+
       conn.on('open', () => {
         document.getElementById('status-text').innerText = `คุยกับ [${targetRole}] อยู่`;
+        // ยิงสถานะอารมณ์ของเราไปบอกแฟน
+        updateMyMood();
+        // เคลียร์ข้อความดอง (Outbox Sync)
+        flushOutbox();
       });
 
       conn.on('data', (data) => {
         if (data.type === 'TEXT') appendBubble(data.text, 'them', data.time);
         else if (data.type === 'GIFT') appendGiftBubble(data.item, 'them', data.time);
         else if (data.type === 'GIFT_ACK') alert(`🎉 ${targetRole} กดสัญญาว่าจะซื้อ "${data.item}" ให้คุณแล้ว!`);
+        else if (data.type === 'MOOD') document.getElementById('partner-mood').innerText = data.mood;
+        else if (data.type === 'HEARTS') triggerHeartAnimation();
         else if (data.type === 'REQ_LOCATION') handleLocationRequest();
         else if (data.type === 'RESP_LOCATION') alert(`📍 พิกัดแฟน:\nhttps://maps.google.com/?q=${data.lat},${data.lng}`);
+        else if (data.type === 'ERR_PERM') alert(`⚠️ ${data.msg}`);
       });
     }
 
+    // ระบบส่งข้อความ + เคลียร์แป้นพิมพ์ค้างไว้พร้อมพิมพ์ต่อ
     function sendText() {
       const input = document.getElementById('msg-input');
       const text = input.value.trim();
-      if (!text || !conn || !conn.open) return alert("ยังไม่ได้เชื่อมต่อกับอีกฝั่งครับ (กด ⚙️ เพื่อเช็กรหัส)");
+      if (!text) return;
 
       const time = getTime();
-      conn.send({ type: 'TEXT', text, time });
-      appendBubble(text, 'me', time);
+      const payload = { type: 'TEXT', text, time };
+
+      if (conn && conn.open) {
+        conn.send(payload);
+        appendBubble(text, 'me', time);
+      } else {
+        // ถ้าไม่ออน ให้ดองไว้ใน Outbox
+        outboxQueue.push(payload);
+        appendBubble(text, 'me', time, true); // true = pending status
+      }
+
       input.value = '';
+      input.focus(); // แป้นพิมพ์พร้อมพิมพ์ต่อทันที
     }
 
-    function appendBubble(text, side, time) {
+    // ยิงข้อความค้างส่งเมื่อต่อเน็ตติด
+    function flushOutbox() {
+      if (outboxQueue.length > 0 && conn && conn.open) {
+        outboxQueue.forEach(payload => conn.send(payload));
+        outboxQueue = [];
+        // ปรับหน้าตาข้อความดองให้กลายเป็นส่งแล้ว
+        document.querySelectorAll('.bubble.pending').forEach(el => {
+          el.classList.remove('pending');
+          const meta = el.querySelector('.meta');
+          if (meta) meta.innerHTML = `${meta.innerText.replace('🕒', '')} ✓`;
+        });
+      }
+    }
+
+    function appendBubble(text, side, time, isPending = false) {
       const box = document.getElementById('chat-box');
       const div = document.createElement('div');
-      div.className = `bubble ${side}`;
-      div.innerHTML = `<div>${escapeHTML(text)}</div><span class="time">${time}</span>`;
+      div.className = `bubble ${side} ${isPending ? 'pending' : ''}`;
+      div.innerHTML = `<div>${escapeHTML(text)}</div><span class="meta">${time} ${isPending ? '🕒 รอนำส่ง' : ''}</span>`;
       box.appendChild(div);
       box.scrollTop = box.scrollHeight;
     }
 
-    // ฟังก์ชันขอของ
+    // ตั้งสถานะอารมณ์
+    function updateMyMood() {
+      const mood = document.getElementById('my-mood').value;
+      if (conn && conn.open) {
+        conn.send({ type: 'MOOD', mood });
+      }
+    }
+
+    // เอฟเฟกต์ส่งหัวใจลอย
+    function sendHearts() {
+      if (conn && conn.open) conn.send({ type: 'HEARTS' });
+      triggerHeartAnimation();
+    }
+
+    function triggerHeartAnimation() {
+      const container = document.getElementById('heart-container');
+      for (let i = 0; i < 15; i++) {
+        setTimeout(() => {
+          const heart = document.createElement('div');
+          heart.className = 'floating-heart';
+          heart.innerText = ['💖', '💗', '💕', '❤️', '😻'][Math.floor(Math.random() * 5)];
+          heart.style.left = Math.random() * 90 + '%';
+          container.appendChild(heart);
+          setTimeout(() => heart.remove(), 2000);
+        }, i * 100);
+      }
+      if ("vibrate" in navigator) navigator.vibrate([100, 50, 100]);
+    }
+
+    // ขอของ
     function openGiftModal() { document.getElementById('gift-modal').style.display = 'flex'; }
     function closeGiftModal() { document.getElementById('gift-modal').style.display = 'none'; }
 
     function sendGiftRequest() {
       const item = document.getElementById('gift-name').value.trim();
-      if (!item || !conn || !conn.open) return alert("กรุณาใส่ชื่อของที่อยากได้ หรือเช็กการเชื่อมต่อ");
+      if (!item) return;
 
       const time = getTime();
-      conn.send({ type: 'GIFT', item, time });
-      appendGiftBubble(item, 'me', time);
+      const payload = { type: 'GIFT', item, time };
+
+      if (conn && conn.open) {
+        conn.send(payload);
+        appendGiftBubble(item, 'me', time);
+      } else {
+        outboxQueue.push(payload);
+        appendGiftBubble(item, 'me', time, true);
+      }
+
       closeGiftModal();
       document.getElementById('gift-name').value = '';
     }
 
-    function appendGiftBubble(item, side, time) {
+    function appendGiftBubble(item, side, time, isPending = false) {
       const box = document.getElementById('chat-box');
       const div = document.createElement('div');
       div.style.alignSelf = (side === 'me') ? 'flex-end' : 'flex-start';
@@ -310,9 +384,9 @@
       const isThem = (side === 'them');
       div.innerHTML = `
         <div class="gift-card">
-          <div class="gift-title">🎁 ${side === 'me' ? 'คุณส่งคำขอของ' : 'แฟนส่งคำขอของ'}</div>
+          <div class="gift-title">🎁 ${side === 'me' ? 'คุณส่งคำขอของ' : 'แฟนส่งคำขอของ'} ${isPending ? '(🕒 รอนำส่ง)' : ''}</div>
           <div class="gift-item">${escapeHTML(item)}</div>
-          ${isThem ? `<button class="btn-ack-gift" onclick="ackGift('${escapeHTML(item)}')">❤️ ตกลง ซื้อให้!</button>` : '<div style="font-size:0.7rem; color:#a855f7; text-align:center;">รอแฟนกดตกลง...</div>'}
+          ${isThem ? `<button class="btn-ack-gift" onclick="ackGift('${escapeHTML(item)}')">❤️ ตกลง ซื้อให้!</button>` : '<div style="font-size:0.7rem; color:#a855f7; text-align:center;">รอแฟนตอบรับ...</div>'}
         </div>
       `;
       box.appendChild(div);
@@ -333,25 +407,30 @@
     }
 
     function requestLocation() {
-      if (!conn || !conn.open) return alert("ยังไม่เชื่อมต่อ");
+      if (!conn || !conn.open) return alert("อีกฝ่ายยังไม่ออน");
       conn.send({ type: 'REQ_LOCATION' });
       alert("ส่งคำขอพิกัดเรียบร้อย");
     }
 
     function handleLocationRequest() {
-      navigator.geolocation.getCurrentPosition(pos => {
-        conn.send({ type: 'RESP_LOCATION', lat: pos.coords.latitude, lng: pos.coords.longitude });
-      });
+      const allowGPS = document.getElementById('perm-gps').checked;
+      if (allowGPS) {
+        navigator.geolocation.getCurrentPosition(pos => {
+          conn.send({ type: 'RESP_LOCATION', lat: pos.coords.latitude, lng: pos.coords.longitude });
+        });
+      } else {
+        conn.send({ type: 'ERR_PERM', msg: 'แฟนของคุณปิดสิทธิ์การเข้าถึงพิกัด GPS ไว้' });
+      }
     }
 
     function requestAudioStream() {
-      if (!peer) return alert("กรุณาต่อ P2P ก่อน");
+      if (!peer || !conn || !conn.open) return alert("อีกฝ่ายยังไม่ออน");
       const secret = document.getElementById('secret-key').value.trim();
       navigator.mediaDevices.getUserMedia({ audio: true }).then(s => {
         const call = peer.call(`${secret}-${targetRole}`, s);
         call.on('stream', rs => {
           document.getElementById('remote-audio').srcObject = rs;
-          alert("🎙️ ฟังเสียงไมค์ฝั่งตรงข้ามแล้ว");
+          alert("🎙️ รับสัญญาณเสียงเรียบร้อย");
         });
       });
     }
